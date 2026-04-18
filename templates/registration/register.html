@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Регистрация | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-5 bg-white p-5 rounded-4 shadow-sm border">
+        <h3 class="fw-bold text-accent mb-4 text-center">Регистрация</h3>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold ms-2">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text small ms-2">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1 ms-2">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-rounded w-100 py-2 mt-4 shadow-sm text-uppercase fw-bold">
+                Создать аккаунт
+            </button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <span class="text-secondary small">Уже есть аккаунт? </span>
+            <a href="{% url 'users:login' %}" class="text-accent small fw-bold text-decoration-none">Войти</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

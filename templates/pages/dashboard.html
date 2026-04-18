@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row py-5">
+    <div class="col-12">
+        <h2 class="fw-bold mb-4">Панель управления</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold text-accent">Мои модули</h5>
+                    <p class="text-secondary small">Просмотр доступных учебных материалов.</p>
+                    <a href="{% url 'curriculum:module_list' %}" class="btn btn-primary btn-rounded w-100 mt-auto">Открыть</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold text-accent">Задания</h5>
+                    <p class="text-secondary small">Список текущих практических работ.</p>
+                    <a href="{% url 'curriculum:task_list' %}"
+                       class="btn btn-outline-primary btn-rounded w-100 mt-auto">Перейти</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold text-accent">Результаты</h5>
+                    <p class="text-secondary small">Оценки и отзывы преподавателей.</p>
+                    <a href="{% url 'solutions:student_results' %}"
+                       class="btn btn-outline-secondary btn-rounded w-100 mt-auto">Посмотреть</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

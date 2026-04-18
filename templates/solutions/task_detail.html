@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'curriculum:task_list' %}">Задания</a></li>
+                <li class="breadcrumb-item active">{{ task.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm rounded-4 p-5 mb-4">
+            <h2 class="fw-bold text-accent mb-3">{{ task.title }}</h2>
+            <div class="d-flex gap-4 mb-4 text-secondary small">
+                <span>📅 Дедлайн: <b>{{ task.deadline|date:"d.m.Y H:i" }}</b></span>
+                <span>⭐ Макс. балл: <b>{{ task.max_score }}</b></span>
+            </div>
+            <hr>
+            <div class="py-3">
+                <h5 class="fw-bold">Описание задания:</h5>
+                <p class="text-secondary">{{ task.description|linebreaks }}</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-5">
+            <h4 class="fw-bold mb-4">Отправить решение</h4>
+
+            {% if user_submission %}
+                <div class="alert alert-info rounded-4 border-0 mb-4">
+                    Текущий статус: <strong>{{ user_submission.get_status_display }}</strong><br>
+                    Последняя загрузка: {{ user_submission.updated_at|date:"d.m.Y H:i" }}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-4">
+                    {{ form.file }}
+                    <div class="form-text mt-2">Прикрепите архив с выполненной работой (zip/rar).</div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-rounded px-5">Отправить на проверку</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

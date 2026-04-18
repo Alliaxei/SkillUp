@@ -7,76 +7,61 @@
     <div class="col-lg-6">
         <h1 class="display-4 fw-bold mb-4 text-dark">Мастерство <br><span class="text-accent">Веб-дизайна и разработки</span></h1>
         <p class="lead text-secondary mb-5">Единая образовательная среда для обучающихся и преподавателей. Выполняйте задания, получайте обратную связь и отслеживайте прогресс.</p>
-        <div class="d-flex gap-3 mt-5">
-            <a href="/modules/" class="btn btn-primary btn-lg btn-rounded px-5 shadow-sm">Начать работу</a>
-            <a href="/about/" class="btn btn-outline-secondary btn-lg btn-rounded px-5">Узнать больше</a>
-        </div>
+       <div class="d-flex gap-3 mt-5">
+    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg btn-rounded px-5 shadow-sm">Начать работу</a>
+    <a href="{% url 'core:about' %}" class="btn btn-outline-secondary btn-lg btn-rounded px-5">Узнать больше</a>
+</div>
     </div>
     <div class="col-lg-6 mt-5 mt-lg-0 text-center d-flex justify-content-center align-items-center" style="height: 500px;" id="shape-container">
-        {# Контейнер увеличен по высоте для вмещения большой фигуры #}
     </div>
 </div>
 
-{# Подключаем Three.js #}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // Основные настройки сцены
     const container = document.getElementById('shape-container');
     const scene = new THREE.Scene();
-    // Настройка камеры с учетом размера контейнера
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    // --- Изменения геометрии и размера ---
-    // Создаем КУБ (BoxGeometry) вместо икосаэдра.
-    // Размер значительно увеличен (параметры 3.2, 3.2, 3.2).
     const geometry = new THREE.BoxGeometry(3.2, 3.2, 3.2);
 
-    // Материал с эффектом свечения и переливами ( MeshPhysicalMaterial для качества)
     const material = new THREE.MeshPhysicalMaterial({
-        color: 0x0d6efd, // Базовый акцентный синий
-        emissive: 0x0d6efd, // Цвет свечения
-        emissiveIntensity: 0.5, // Интенсивность свечения
+        color: 0x0d6efd,
+        emissive: 0x0d6efd,
+        emissiveIntensity: 0.5,
         transparent: true,
         opacity: 0.9,
         roughness: 0.1,
-        metalness: 0.6, // Придаем металлический блеск
-        clearcoat: 1.0, // Дополнительный глянцевый слой
+        metalness: 0.6,
+        clearcoat: 1.0,
         clearcoatRoughness: 0.1
     });
 
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    // Добавляем освещение
     const light = new THREE.PointLight(0xffffff, 1.5, 100);
     light.position.set(10, 10, 10);
     scene.add(light);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Рассеянный свет для мягкости
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    // Позиция камеры
     camera.position.z = 6;
 
-    // --- Изменения скорости и логики движения ---
-    // Базовые скорости вращения (ОЧЕНЬ медленные)
     const baseRotationSpeedX = 0.0008;
     const baseRotationSpeedY = 0.0015;
 
-    // Текущие целевые скорости (меняются при клике)
     let targetRotationX = baseRotationSpeedX;
     let targetRotationY = baseRotationSpeedY;
 
-    // Настройка Raycaster для обработки кликов именно по фигуре
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
     container.addEventListener('click', (event) => {
-        // Вычисляем координаты мыши относительно контейнера
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / (rect.right - rect.left)) * 2 - 1;
         mouse.y = -((event.clientY - rect.top) / (rect.bottom - rect.top)) * 2 + 1;
@@ -84,13 +69,9 @@
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObject(mesh);
 
-        // Если клик попал по кубу
         if (intersects.length > 0) {
-            // Придаем ОЧЕНЬ ЛЕГКОЕ, ненавязчивое ускорение
             targetRotationX += 0.005;
             targetRotationY += 0.008;
-
-            // Устанавливаем лимит максимального ускорения, чтобы не закрутилось слишком быстро
             targetRotationX = Math.min(targetRotationX, 0.02);
             targetRotationY = Math.min(targetRotationY, 0.03);
         }
@@ -98,32 +79,23 @@
 
     const clock = new THREE.Clock();
 
-    // Цикл анимации
     function animate() {
         requestAnimationFrame(animate);
         const elapsedTime = clock.getElapsedTime();
 
-        // Применяем текущую скорость вращения
         mesh.rotation.x += targetRotationX;
         mesh.rotation.y += targetRotationY;
 
-        // --- Логика плавного затухания скорости ---
-        // Используем линейную интерполяцию (LERP) для возврата к базовой медленной скорости
         targetRotationX = THREE.MathUtils.lerp(targetRotationX, baseRotationSpeedX, 0.02); // 0.02 - скорость затухания
         targetRotationY = THREE.MathUtils.lerp(targetRotationY, baseRotationSpeedY, 0.02);
 
-        // --- Эффект перелива цвета (сохранен) ---
-        // Плавно меняем оттенок (Hue) в зависимости от времени
-        const hue = (Math.sin(elapsedTime * 0.5) + 1) * 0.05 + 0.55; // Диапазон вокруг синего
+        const hue = (Math.sin(elapsedTime * 0.5) + 1) * 0.05 + 0.55;
         material.color.setHSL(hue, 1, 0.5);
-        material.emissive.setHSL(hue, 1, 0.3); // Свечение чуть темнее основного цвета
+        material.emissive.setHSL(hue, 1, 0.3);
 
         renderer.render(scene, camera);
     }
-
     animate();
-
-    // Обработка изменения размера окна
     window.addEventListener('resize', () => {
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();

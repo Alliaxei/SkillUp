@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ material.title }} | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'curriculum:module_list' %}">Модули</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'curriculum:module_detail' material.module.id %}">{{ material.module.title }}</a></li>
+                <li class="breadcrumb-item active">{{ material.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+            <h1 class="fw-bold text-accent mb-4">{{ material.title }}</h1>
+
+            <div class="material-content text-secondary mb-5" style="line-height: 1.8; font-size: 1.1rem;">
+                {{ material.text_content|linebreaks }}
+            </div>
+
+            {% if material.file %}
+            <div class="p-4 bg-light rounded-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="fw-bold mb-1">Дополнительные файлы</h6>
+                    <p class="text-muted small mb-0">Скачайте вложения для более глубокого изучения темы</p>
+                </div>
+                <a href="{{ material.file.url }}" class="btn btn-primary btn-rounded px-4" download>
+                    Скачать файл
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'curriculum:module_detail' material.module.id %}" class="btn btn-outline-secondary btn-rounded px-4">
+                Вернуться к модулю
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

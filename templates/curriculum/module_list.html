@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Учебные модули | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Главная</a></li>
+                <li class="breadcrumb-item active">Модули</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">Учебные модули</h2>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for module in modules %}
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h4 class="fw-bold text-accent mb-0">{{ module.title }}</h4>
+                <span class="badge bg-primary bg-opacity-10 text-accent rounded-pill px-3">
+                    {{ module.order }} этап
+                </span>
+            </div>
+            <p class="text-secondary">{{ module.description|truncatewords:20 }}</p>
+            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    📖 {{ module.materials_count }} материалов | 📝 {{ module.tasks_count }} заданий
+                </small>
+                <a href="{% url 'curriculum:module_detail' module.id %}" class="btn btn-primary btn-rounded px-4">Открыть</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-secondary">Учебные модули пока не добавлены.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
