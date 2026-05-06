@@ -1,4 +1,3 @@
-from idlelib.debugobj_r import remote_object_tree_item
 from typing import Any
 
 from django import forms
