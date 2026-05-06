@@ -1,3 +1,6 @@
+from idlelib.debugobj_r import remote_object_tree_item
+from typing import Any
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
@@ -27,7 +30,7 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ("username", "last_name", "first_name", "middle_name", "email")
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs.update(
