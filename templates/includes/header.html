@@ -6,20 +6,26 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:about' %}">О платформе</a>
-                </li>
-                <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                    {% if user.is_authenticated %}
-                        <span class="text-secondary me-3 small">Привет, {{ user.first_name|default:user.username }}</span>
-                        <form action="{% url 'users:logout' %}" method="post" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-primary btn-rounded px-4">Выйти</button>
-                        </form>
-                    {% else %}
-                        <a class="btn btn-primary btn-rounded px-4" href="{% url 'users:login' %}">Войти</a>
+                {% if user.is_authenticated %}
+                    {% if user.role == 'teacher' or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link text-accent fw-bold" href="{% url 'solutions:teacher_submissions' %}">
+                                Проверка{% if pending_count %} ({{ pending_count }}){% endif %}
+                            </a>
+                        </li>
                     {% endif %}
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'curriculum:module_list' %}">Обучение</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <form action="{% url 'users:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-primary btn-rounded btn-sm px-4">Выйти</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <a class="btn btn-primary btn-rounded px-4" href="{% url 'users:login' %}">Войти</a>
+                {% endif %}
             </ul>
         </div>
     </div>

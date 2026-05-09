@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Создание модуля | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'curriculum:module_list' %}" class="text-decoration-none">Модули</a></li>
+                <li class="breadcrumb-item active">Новый модуль</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+            <div class="text-center mb-4">
+                <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                    <span class="text-accent fs-3">📁</span>
+                </div>
+                <h3 class="fw-bold text-dark">Новый учебный модуль</h3>
+                <p class="text-secondary small">Укажите название и описание для нового этапа обучения</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label text-secondary small fw-bold ms-2">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger small mt-1 ms-2">{{ form.title.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2 ms-2">
+                        <label class="form-label text-secondary small fw-bold mb-0">{{ form.description.label }}</label>
+                        <small class="text-muted" id="charCounter">0 / 1000</small>
+                    </div>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger small mt-1 ms-2">{{ form.description.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2 mt-5">
+                    <button type="submit" class="btn btn-primary btn-rounded py-2 fw-bold text-uppercase shadow-sm">
+                        Создать модуль
+                    </button>
+                    <a href="{% url 'curriculum:module_list' %}" class="btn btn-outline-secondary btn-rounded py-2">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('descriptionTextarea');
+    const counter = document.getElementById('charCounter');
+    const maxLength = 1000;
+
+    textarea.addEventListener('input', function() {
+        const currentLength = this.value.length;
+        counter.textContent = `${currentLength} / ${maxLength}`;
+
+        if (currentLength >= maxLength * 0.9) {
+            counter.classList.add('text-danger');
+            counter.classList.remove('text-muted');
+        } else {
+            counter.classList.remove('text-danger');
+            counter.classList.add('text-muted');
+        }
+    });
+});
+</script>
+
+<style>
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+</style>
+{% endblock %}

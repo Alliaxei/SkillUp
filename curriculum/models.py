@@ -47,7 +47,7 @@ class Task(BaseModel):
     )
     title = models.CharField(max_length=255, verbose_name="Название задания")
     description = models.TextField(verbose_name="Техническое задание")
-    deadline = models.DateTimeField(verbose_name="Крайний срок сдачи (дедлайн)")
+    deadline = models.DateField(verbose_name="Крайний срок сдачи")
     max_score = models.PositiveIntegerField(
         default=100, verbose_name="Максимальный балл"
     )

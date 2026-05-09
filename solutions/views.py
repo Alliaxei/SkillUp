@@ -1,11 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
-from django.views.generic import DetailView, ListView
+from django.db.models import Case, IntegerField, Value, When
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import DetailView, ListView, UpdateView
 
 from curriculum.models import Task
+from curriculum.views import TeacherRequiredMixin
 
 from .forms import SubmissionForm
+from .models import Review, Submission
 from .selectors import get_student_submissions
 from .services import SubmissionService
 
@@ -47,3 +50,71 @@ class StudentResultsListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return get_student_submissions(self.request.user)
+
+
+class TeacherSubmissionListView(TeacherRequiredMixin, ListView):
+    model = Submission
+    template_name = "solutions/teacher_submissions.html"
+    context_object_name = "submissions"
+
+    def get_queryset(self):
+        queryset = Submission.objects.select_related("student", "task", "task__module")
+
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(student__teacher=self.request.user)
+
+        return queryset.annotate(
+            status_priority=Case(
+                When(status=Submission.Status.PENDING, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        ).order_by("status_priority", "-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        visible_submissions = self.get_queryset()
+        context["pending_count"] = visible_submissions.filter(
+            status=Submission.Status.PENDING
+        ).count()
+
+        return context
+
+
+class ReviewCreateView(TeacherRequiredMixin, UpdateView):
+    model = Review
+    fields = ["score", "comment"]
+    template_name = "solutions/review_form.html"
+
+    def get_object(self, queryset=None):
+        submission_id = self.kwargs.get("submission_id")
+        submission = get_object_or_404(Submission, id=submission_id)
+        review, created = Review.objects.get_or_create(
+            submission=submission, defaults={"teacher": self.request.user, "score": 0}
+        )
+        return review
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["submission"] = self.object.submission
+        return context
+
+    def form_valid(self, form):
+        review = form.save(commit=False)
+        review.teacher = self.request.user
+        review.save()
+
+        submission = review.submission
+        submission.status = (
+            Submission.Status.COMPLETED
+            if review.score > 0
+            else Submission.Status.REVISION
+        )
+        submission.save()
+
+        messages.success(
+            self.request,
+            f"Результат проверки для {submission.student.get_full_name()} сохранен.",
+        )
+        return redirect("solutions:teacher_submissions")

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Работы студентов | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold">Очередь <span class="text-accent">проверки</span></h2>
+        <p class="text-secondary">Управление присланными решениями и история проверок.</p>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3 border-0">Студент</th>
+                    <th class="py-3 border-0">Задание</th>
+                    <th class="py-3 border-0">Статус</th>
+                    <th class="py-3 border-0">Дата загрузки</th>
+                    <th class="pe-4 py-3 border-0 text-end">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                <tr {% if submission.status != 'pending' %}class="bg-light bg-opacity-50"{% endif %}>
+                    <td class="ps-4">
+                        <div class="fw-bold">{{ submission.student.get_full_name }}</div>
+                        <small class="text-muted">@{{ submission.student.username }}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary bg-opacity-10 text-accent rounded-pill px-2 small">
+                            {{ submission.task.module.title }}
+                        </span>
+                        <div class="small mt-1 text-dark">{{ submission.task.title }}</div>
+                    </td>
+                    <td>
+                        {% if submission.status == 'pending' %}
+                            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Ожидает</span>
+                        {% elif submission.status == 'completed' %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Проверено</span>
+                        {% elif submission.status == 'revision' %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Доработка</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="text-secondary small">{{ submission.created_at|date:"d.m.Y H:i" }}</span></td>
+                    <td class="pe-4 text-end">
+                        <a href="{% url 'solutions:review_create' submission.id %}"
+                           class="btn {% if submission.status == 'pending' %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-sm btn-rounded px-3">
+                            {% if submission.status == 'pending' %}Проверить{% else %}Перепроверить{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-secondary">Нет работ для отображения.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

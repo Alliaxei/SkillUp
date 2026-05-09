@@ -15,7 +15,7 @@
         <div class="card border-0 shadow-sm rounded-4 p-5 mb-4">
             <h2 class="fw-bold text-accent mb-3">{{ task.title }}</h2>
             <div class="d-flex gap-4 mb-4 text-secondary small">
-                <span>📅 Дедлайн: <b>{{ task.deadline|date:"d.m.Y H:i" }}</b></span>
+               <span>📅 Дедлайн: <b>{{ task.deadline|date:"d.m.Y" }}</b></span>
                 <span>⭐ Макс. балл: <b>{{ task.max_score }}</b></span>
             </div>
             <hr>

@@ -1,8 +1,12 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, QuerySet
 from django.shortcuts import render
-from django.views.generic import DetailView, ListView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView, ListView
 
+from users.models import User
+
+from .forms import ModuleForm, TaskForm
 from .models import Material, Module, Task
 from .selectors import get_module_with_content
 
@@ -40,3 +44,29 @@ class MaterialDetailView(LoginRequiredMixin, DetailView):
     model = Material
     template_name = "curriculum/material_detail.html"
     context_object_name = "material"
+
+
+class TeacherRequiredMixin(UserPassesTestMixin):
+    def test_func(self) -> bool:
+        return self.request.user.is_authenticated and (
+            self.request.user.role == User.Role.TEACHER or self.request.user.is_staff
+        )
+
+
+class ModuleCreateView(TeacherRequiredMixin, CreateView):
+    model = Module
+    form_class = ModuleForm
+    template_name = "curriculum/module_form.html"
+    success_url = reverse_lazy("curriculum:module_list")
+
+    def form_valid(self, form):
+        last_module = Module.objects.order_by("-order").first()
+        form.instance.order = (last_module.order + 1) if last_module else 1
+        return super().form_valid(form)
+
+
+class TaskCreateView(TeacherRequiredMixin, CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = "curriculum/task_form.html"
+    success_url = reverse_lazy("curriculum:task_list")

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель преподавателя | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold">Панель управления <span class="text-accent">преподавателя</span></h2>
+        <p class="text-secondary">Управление учебным процессом и проверка работ.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+            <h3 class="fw-bold text-accent mb-1">{{ pending_count|default:"0" }}</h3>
+            <small class="text-secondary text-uppercase fw-bold">Ожидают проверки</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+            <h3 class="fw-bold text-dark mb-1">{{ total_students|default:"0" }}</h3>
+            <small class="text-secondary text-uppercase fw-bold">Всего студентов</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold text-accent mb-3">Работы на проверку</h5>
+            <p class="text-secondary small">Список всех присланных решений, требующих оценки.</p>
+            <a href="{% url 'solutions:teacher_submissions' %}" class="btn btn-primary btn-rounded w-100 mt-auto">Перейти к проверке</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold text-accent mb-3">Управление контентом</h5>
+            <p class="text-secondary small">Добавление новых учебных модулей для курса.</p>
+            <a href="{% url 'curriculum:module_create' %}" class="btn btn-outline-primary btn-rounded w-100 mt-auto">Создать модуль</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold text-accent mb-3">Новое задание</h5>
+            <p class="text-secondary small">Создание практических задач для студентов.</p>
+            <a href="{% url 'curriculum:task_create' %}" class="btn btn-outline-primary btn-rounded w-100 mt-auto">Добавить задание</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
