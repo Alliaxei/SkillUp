@@ -1,4 +1,5 @@
 from django.db import models
+from django_ckeditor_5.fields import CKEditor5Field
 
 from core.models import BaseModel
 
@@ -59,3 +60,29 @@ class Task(BaseModel):
 
     def __str__(self):
         return self.title
+
+
+class Lecture(BaseModel):
+    module = models.ForeignKey(
+        Module, on_delete=models.CASCADE, related_name="lectures", verbose_name="Модуль"
+    )
+    title = models.CharField(max_length=255, verbose_name="Название лекции")
+    content = CKEditor5Field(verbose_name="Содержание лекции", config_name="default")
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
+
+    class Meta:
+        verbose_name = "Лекция"
+        verbose_name_plural = "Лекции"
+        ordering = ["order"]
+
+
+class LectureImage(models.Model):
+    lecture = models.ForeignKey(
+        Lecture, on_delete=models.CASCADE, related_name="images"
+    )
+    image = models.ImageField(upload_to="lectures/%Y/%m/", verbose_name="Изображение")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Изображение лекции"
+        verbose_name_plural = "Изображения лекций"

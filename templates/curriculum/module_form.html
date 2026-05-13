@@ -7,7 +7,11 @@
     <div class="col-lg-6">
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'curriculum:module_list' %}" class="text-decoration-none">Модули</a></li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:index' %}" class="text-decoration-none">
+                        <i class="bi bi-house-door me-1"></i>Главная
+                    </a>
+                </li>
                 <li class="breadcrumb-item active">Новый модуль</li>
             </ol>
         </nav>
@@ -47,7 +51,7 @@
                     <button type="submit" class="btn btn-primary btn-rounded py-2 fw-bold text-uppercase shadow-sm">
                         Создать модуль
                     </button>
-                    <a href="{% url 'curriculum:module_list' %}" class="btn btn-outline-secondary btn-rounded py-2">
+                    <a href="{% url 'core:index' %}" class="btn btn-outline-secondary btn-rounded py-2">
                         Отмена
                     </a>
                 </div>

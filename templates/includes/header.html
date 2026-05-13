@@ -17,6 +17,22 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'curriculum:module_list' %}">Обучение</a>
                     </li>
+
+                    <li class="nav-item ms-lg-4 me-lg-2">
+                        <span class="navbar-text d-flex flex-column align-items-lg-end line-height-sm">
+                            {% if user.is_superuser %}
+                                <span class="badge bg-dark rounded-pill fw-bold">Администратор</span>
+                            {% else %}
+                                <span class="fw-bold text-dark" style="font-size: 0.9rem;">
+                                    {{ user.first_name }} {{ user.last_name }}
+                                </span>
+                                <small class="text-muted" style="font-size: 0.75rem; margin-top: -3px;">
+                                    {% if user.role == 'teacher' %}Преподаватель{% else %}Студент{% endif %}
+                                </small>
+                            {% endif %}
+                        </span>
+                    </li>
+
                     <li class="nav-item ms-3">
                         <form action="{% url 'users:logout' %}" method="post">
                             {% csrf_token %}
@@ -24,7 +40,9 @@
                         </form>
                     </li>
                 {% else %}
-                    <a class="btn btn-primary btn-rounded px-4" href="{% url 'users:login' %}">Войти</a>
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-rounded px-4" href="{% url 'users:login' %}">Войти</a>
+                    </li>
                 {% endif %}
             </ul>
         </div>

@@ -6,7 +6,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <h2 class="fw-bold">Панель управления <span class="text-accent">преподавателя</span></h2>
-        <p class="text-secondary">Управление учебным процессом и проверка работ.</p>
+        <p class="text-secondary">Управление учебным процессом, загрузка материалов и проверка работ.</p>
     </div>
 </div>
 
@@ -26,26 +26,52 @@
 </div>
 
 <div class="row g-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-            <h5 class="fw-bold text-accent mb-3">Работы на проверку</h5>
-            <p class="text-secondary small">Список всех присланных решений, требующих оценки.</p>
-            <a href="{% url 'solutions:teacher_submissions' %}" class="btn btn-primary btn-rounded w-100 mt-auto">Перейти к проверке</a>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-5 h-100">
+            <div class="mb-4">
+                <span class="fs-2">🔍</span>
+                <h4 class="fw-bold text-dark mt-3">Проверка работ</h4>
+                <p class="text-secondary">Просмотр решений, фильтрация по статусам и комментирование работ обучающихся.</p>
+            </div>
+            <a href="{% url 'solutions:teacher_submissions' %}" class="btn btn-primary btn-rounded w-100 mt-auto py-2 fw-bold">
+                Открыть очередь проверки
+            </a>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-            <h5 class="fw-bold text-accent mb-3">Управление контентом</h5>
-            <p class="text-secondary small">Добавление новых учебных модулей для курса.</p>
-            <a href="{% url 'curriculum:module_create' %}" class="btn btn-outline-primary btn-rounded w-100 mt-auto">Создать модуль</a>
+
+    <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 p-5 h-100">
+        <div class="mb-4">
+            <span class="fs-2">📚</span>
+            <h4 class="fw-bold text-dark mt-3">Учебные материалы</h4>
+            <p class="text-secondary small">Просмотр текущей структуры курса, управление модулями, лекциями и заданиями.</p>
+        </div>
+        <div class="d-grid gap-2 mt-auto">
+            <a href="{% url 'curriculum:module_list' %}" class="btn btn-primary btn-rounded py-2 fw-bold">
+                <i class="bi bi-eye me-2"></i>Просмотреть все материалы
+            </a>
+
+            <hr class="my-2">
+
+            <div class="row g-2">
+                <div class="col-12">
+                    <a href="{% url 'curriculum:module_create' %}" class="btn btn-outline-primary btn-rounded w-100 py-2 small fw-bold">
+                        <i class="bi bi-folder-plus me-2"></i>Создать модуль
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{% url 'curriculum:lecture_create' %}" class="btn btn-outline-secondary btn-rounded w-100 py-2 small fw-bold">
+                        <i class="bi bi-book me-1"></i>Лекция
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{% url 'curriculum:task_create' %}" class="btn btn-outline-secondary btn-rounded w-100 py-2 small fw-bold">
+                        <i class="bi bi-pencil-square me-1"></i>Задание
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-            <h5 class="fw-bold text-accent mb-3">Новое задание</h5>
-            <p class="text-secondary small">Создание практических задач для студентов.</p>
-            <a href="{% url 'curriculum:task_create' %}" class="btn btn-outline-primary btn-rounded w-100 mt-auto">Добавить задание</a>
-        </div>
-    </div>
+</div>
 </div>
 {% endblock %}

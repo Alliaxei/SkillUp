@@ -1,13 +1,16 @@
+import logging
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, QuerySet
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
 
+from solutions.models import Submission
 from users.models import User
 
-from .forms import ModuleForm, TaskForm
-from .models import Material, Module, Task
+from .forms import LectureForm, ModuleForm, TaskForm
+from .models import Lecture, LectureImage, Material, Module, Task
 from .selectors import get_module_with_content
 
 
@@ -27,8 +30,15 @@ class TaskListView(LoginRequiredMixin, ListView):
     template_name = "curriculum/task_list.html"
     context_object_name = "tasks"
 
-    def get_queryset(self):
-        return Task.objects.select_related("module").order_by("deadline")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            submitted_task_ids = Submission.objects.filter(
+                student=self.request.user
+            ).values_list("task_id", flat=True)
+
+            context["submitted_task_ids"] = set(submitted_task_ids)
+        return context
 
 
 class ModuleDetailView(LoginRequiredMixin, DetailView):
@@ -36,8 +46,8 @@ class ModuleDetailView(LoginRequiredMixin, DetailView):
     template_name = "curriculum/module_detail.html"
     context_object_name = "module"
 
-    def get_object(self, queryset: QuerySet | None = None) -> Module:
-        return get_module_with_content(self.kwargs.get("pk"))
+    def get_queryset(self) -> QuerySet:
+        return Module.objects.prefetch_related("lectures", "tasks")
 
 
 class MaterialDetailView(LoginRequiredMixin, DetailView):
@@ -70,3 +80,35 @@ class TaskCreateView(TeacherRequiredMixin, CreateView):
     form_class = TaskForm
     template_name = "curriculum/task_form.html"
     success_url = reverse_lazy("curriculum:task_list")
+
+
+logger = logging.getLogger(__name__)
+
+
+class LectureCreateView(TeacherRequiredMixin, CreateView):
+    model = Lecture
+    form_class = LectureForm
+    template_name = "curriculum/lecture_form.html"
+
+    def form_valid(self, form):
+        logger.info(f"Форма лекции валидна. Пользователь: {self.request.user}")
+        lecture = form.save()
+
+        images = self.request.FILES.getlist("images")
+        logger.info(f"Загружено дополнительных изображений: {len(images)}")
+
+        for img in images:
+            LectureImage.objects.create(lecture=lecture, image=img)
+
+        logger.info(f"Лекция '{lecture.title}' успешно создана (ID: {lecture.id})")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"Ошибка валидации формы лекции: {form.errors.as_json()}")
+        return super().form_invalid(form)
+
+
+class LectureDetailView(LoginRequiredMixin, DetailView):
+    model = Lecture
+    template_name = "curriculum/lecture_detail.html"
+    context_object_name = "lecture"

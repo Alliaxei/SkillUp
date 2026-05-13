@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "users",
     "solutions",
     "curriculum",
+    "django_ckeditor_5",
 ]
 
 MIDDLEWARE = [
@@ -112,3 +113,41 @@ USE_TZ = True
 STATIC_URL = "static/"
 LOGIN_REDIRECT_URL = "core:index"
 LOGOUT_REDIRECT_URL = "core:index"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+CKEDITOR_5_CONFIGS = {
+    "default": {
+        "toolbar": [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "link",
+            "bulletedList",
+            "numberedList",
+            "blockQuote",
+            "imageUpload",
+            "insertTable",
+            "mediaEmbed",
+            "undo",
+            "redo",
+        ],
+        "image": {
+            "toolbar": [
+                "imageTextAlternative",
+                "|",
+                "imageStyle:alignLeft",
+                "imageStyle:alignCenter",
+                "imageStyle:alignRight",
+                "|",
+                "imageStyle:full",
+                "imageStyle:side",
+            ],
+            "styles": ["full", "side", "alignLeft", "alignCenter", "alignRight"],
+        },
+    },
+}
+
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = "any"

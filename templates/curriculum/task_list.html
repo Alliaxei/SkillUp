@@ -3,46 +3,71 @@
 {% block title %}Задания | EduWeb{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Главная</a></li>
-                <li class="breadcrumb-item active">Задания</li>
-            </ol>
-        </nav>
-        <h2 class="fw-bold">Актуальные задания</h2>
-    </div>
-</div>
-
-<div class="row g-4">
-    {% for task in tasks %}
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 position-relative">
-            <div class="mb-3">
-                <small class="text-accent fw-bold text-uppercase">{{ task.module.title }}</small>
-                <h5 class="fw-bold mt-1">{{ task.title }}</h5>
-            </div>
-            <p class="text-secondary small">{{ task.description|truncatewords:15 }}</p>
-            <div class="mt-auto">
-                <div class="d-flex justify-content-between mb-3 small">
-                    <span class="text-muted">Срок сдачи:</span>
-                    <span class="fw-bold {% if task.deadline < now %}text-danger{% endif %}">
-                        {{ task.deadline|date:"d.m.Y" }}
-                    </span>
-                </div>
-                <div class="d-flex justify-content-between mb-3 small">
-                    <span class="text-muted">Макс. балл:</span>
-                    <span class="badge bg-light text-dark">{{ task.max_score }}</span>
-                </div>
-                <a href="{% url 'solutions:task_detail' task.id %}" class="btn btn-outline-primary btn-rounded w-100">Сдать работу</a>
-            </div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'core:index' %}"
+                                                   class="text-decoration-none">Главная</a></li>
+                    <li class="breadcrumb-item active">Задания</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold">Актуальные задания</h2>
         </div>
     </div>
-    {% empty %}
-    <div class="col-12 text-center py-5">
-        <p class="text-secondary">Заданий пока нет.</p>
+
+    <div class="row g-4">
+        {% for task in tasks %}
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <small class="text-accent fw-bold text-uppercase">{{ task.module.title }}</small>
+                        <span class="badge bg-primary bg-opacity-10 text-accent rounded-pill px-3">
+                    {{ task.max_score }} б.
+                </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-3">{{ task.title }}</h4>
+                    <p class="text-secondary">{{ task.description|truncatewords:20 }}</p>
+
+                    <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                        <div class="small">
+                            <span class="text-muted">📅 Срок:</span>
+                            <span class="fw-bold {% if task.deadline < current_date %}text-danger{% endif %}">
+                        {{ task.deadline|date:"d.m.Y" }}
+                    </span>
+                        </div>
+
+                        <div>
+                            {% if user.role == 'student' %}
+                                {% if task.id in submitted_task_ids %}
+                                    <a href="{% url 'solutions:task_detail' task.id %}"
+                                       class="btn btn-outline-primary btn-rounded px-4 btn-sm fw-bold">
+                                        <i class="bi bi-info-circle me-1"></i>Подробнее
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'solutions:task_detail' task.id %}"
+                                       class="btn btn-primary btn-rounded px-4 btn-sm fw-bold shadow-sm">
+                                        Сдать задание
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{% url 'solutions:task_detail' task.id %}"
+                                   class="btn btn-outline-primary btn-rounded px-4 btn-sm fw-bold">
+                                    <i class="bi bi-eye me-1"></i>Просмотр
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="bg-light rounded-4 p-5">
+                    <span class="fs-1">📝</span>
+                    <p class="text-secondary mt-3 mb-0">Актуальных заданий пока нет.</p>
+                </div>
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 {% endblock %}

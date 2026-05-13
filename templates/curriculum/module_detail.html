@@ -27,18 +27,23 @@
                 <h4 class="fw-bold mb-4 d-flex align-items-center">
                     <span class="text-accent me-2">📖</span> Теоретические материалы
                 </h4>
-                {% for material in module.materials.all %}
+
+                {% for lecture in module.lectures.all %}
                     <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 bg-white">
-                        <h6 class="fw-bold mb-3">{{ material.title }}</h6>
+                        <h6 class="fw-bold mb-3">{{ lecture.title }}</h6>
                         <div class="d-flex justify-content-between align-items-center">
-                            <a href="{% url 'curriculum:material_detail' material.id %}"
+                            <a href="{% url 'curriculum:lecture_detail' lecture.id %}"
                                class="btn btn-primary btn-sm btn-rounded px-4">
                                 Читать лекцию
                             </a>
-                            {% if material.file %}
-                                <span class="text-muted small">📎 Файл прикреплен</span>
+                            {% if lecture.images.exists %}
+                                <span class="text-muted small">🖼️ Галерея прикреплена</span>
                             {% endif %}
                         </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center p-4 bg-light rounded-4">
+                        <p class="text-muted mb-0">Теоретические материалы пока не добавлены.</p>
                     </div>
                 {% endfor %}
             </div>
@@ -53,7 +58,7 @@
                         <h6 class="fw-bold mb-0">{{ task.title }}</h6>
                         <span class="badge bg-light text-dark">{{ task.max_score }} б.</span>
                     </div>
-                    <p class="text-secondary small mb-3">Дедлайн: {{ task.deadline|date:"d.m.Y H:i" }}</p>
+                    <p class="text-secondary small mb-3">Дедлайн: {{ task.deadline|date:"d.m.Y" }}</p>
                     <a href="{% url 'solutions:task_detail' task.id %}" class="btn btn-primary btn-sm btn-rounded px-4">
                         Перейти к заданию
                     </a>

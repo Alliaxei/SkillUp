@@ -3,47 +3,116 @@
 {% block title %}{{ task.title }} | EduWeb{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'curriculum:task_list' %}">Задания</a></li>
-                <li class="breadcrumb-item active">{{ task.title }}</li>
-            </ol>
-        </nav>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'core:index' %}" class="text-decoration-none">Главная</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ task.title }}</li>
+                </ol>
+            </nav>
 
-        <div class="card border-0 shadow-sm rounded-4 p-5 mb-4">
-            <h2 class="fw-bold text-accent mb-3">{{ task.title }}</h2>
-            <div class="d-flex gap-4 mb-4 text-secondary small">
-               <span>📅 Дедлайн: <b>{{ task.deadline|date:"d.m.Y" }}</b></span>
-                <span>⭐ Макс. балл: <b>{{ task.max_score }}</b></span>
-            </div>
-            <hr>
-            <div class="py-3">
-                <h5 class="fw-bold">Описание задания:</h5>
-                <p class="text-secondary">{{ task.description|linebreaks }}</p>
-            </div>
-        </div>
-
-        <div class="card border-0 shadow-sm rounded-4 p-5">
-            <h4 class="fw-bold mb-4">Отправить решение</h4>
-
-            {% if user_submission %}
-                <div class="alert alert-info rounded-4 border-0 mb-4">
-                    Текущий статус: <strong>{{ user_submission.get_status_display }}</strong><br>
-                    Последняя загрузка: {{ user_submission.updated_at|date:"d.m.Y H:i" }}
-                </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} border-0 rounded-4 shadow-sm mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
 
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="mb-4">
-                    {{ form.file }}
-                    <div class="form-text mt-2">Прикрепите архив с выполненной работой (zip/rar).</div>
+            <div class="card border-0 shadow-sm rounded-4 p-5 mb-4">
+                <h2 class="fw-bold text-accent mb-3">{{ task.title }}</h2>
+                <div class="d-flex gap-4 mb-4 text-secondary small">
+                    <span>📅 Дедлайн: <b>{{ task.deadline|date:"d.m.Y" }}</b></span>
+                    <span>⭐ Макс. балл: <b>{{ task.max_score }}</b></span>
                 </div>
-                <button type="submit" class="btn btn-primary btn-rounded px-5">Отправить на проверку</button>
-            </form>
+                <hr>
+                <div class="py-3">
+                    <h5 class="fw-bold">Описание задания:</h5>
+                    <div class="text-secondary">{{ task.description|linebreaks }}</div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-5">
+                {% if user.role == 'student' %}
+                    {% if user_submission %}
+                        <h4 class="fw-bold mb-4">Ваше решение</h4>
+                        <div class="alert {% if user_submission.status == 'completed' %}alert-success{% elif user_submission.status == 'revision' %}alert-warning{% else %}alert-info{% endif %} rounded-4 border-0 p-4 mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                    <span class="fs-4 me-2">
+                        {% if user_submission.status == 'completed' %}✅{% elif user_submission.status == 'revision' %}
+                            ⚠️{% else %}📩{% endif %}
+                    </span>
+                                <h5 class="fw-bold mb-0">Статус: {{ user_submission.get_status_display }}</h5>
+                            </div>
+                            <div class="ms-1 ps-4">
+                                {% if user_submission.review %}
+                                    <p class="mb-1">Ваш балл: <strong>{{ user_submission.review.score }}
+                                        / {{ task.max_score }}</strong></p>
+                                {% endif %}
+                                <small class="text-secondary">Обновлено: {{ user_submission.updated_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+                        </div>
+
+                        {% if user_submission.review and user_submission.review.comment %}
+                            <div class="card border-0 bg-light rounded-4 p-4 mt-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="me-2">💬</span>
+                                    <h6 class="fw-bold mb-0 text-dark">Комментарий преподавателя:</h6>
+                                </div>
+                                <div class="text-secondary small ms-4">
+                                    {{ user_submission.review.comment|linebreaks }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if user_submission.status == 'revision' %}
+                            <div class="mt-5 pt-4 border-top">
+                                <h5 class="fw-bold mb-3">Загрузить исправленный вариант</h5>
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ form.file }}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-rounded px-4 shadow-sm">Обновить
+                                        решение
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <h4 class="fw-bold mb-4">Отправить решение</h4>
+                        {% now "Y-m-d" as current_date %}
+                        {% if task.deadline and task.deadline|date:"Y-m-d" < current_date %}
+                            <div class="alert alert-danger rounded-4 border-0">
+                                Срок сдачи задания истек ({{ task.deadline|date:"d.m.Y" }}). Прием работ закрыт.
+                            </div>
+                        {% else %}
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-4">
+                                    <label class="form-label text-secondary small fw-bold">Файл решения</label>
+                                    {{ form.file }}
+                                    <div class="form-text mt-2">Прикрепите архив с выполненной работой (zip/rar).</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-rounded px-5 shadow-sm">Отправить на
+                                    проверку
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <span class="fs-1 d-block mb-3">ℹ️</span>
+                        <h5 class="fw-bold">Режим просмотра</h5>
+                        <p class="text-secondary mb-0">Вы просматриваете это задание как
+                            <strong>{{ user.get_role_display|default:"Сотрудник" }}</strong>. Отправка решений доступна
+                            только обучающимся.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

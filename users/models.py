@@ -31,3 +31,13 @@ class User(AbstractUser, BaseModel):
     def __str__(self) -> str:
         full_name = f"{self.last_name} {self.first_name} {self.middle_name}".strip()
         return full_name if full_name else self.username
+
+    @property
+    def header_display_name(self):
+        if self.is_superuser:
+            return "Администратор"
+
+        role_map = {"teacher": "Преподаватель", "student": "Студент"}
+        display_role = role_map.get(self.role, "Пользователь")
+
+        return f"{self.first_name} {self.last_name} ({display_role})"

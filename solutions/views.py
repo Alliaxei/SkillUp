@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, IntegerField, Value, When
@@ -11,6 +13,8 @@ from .forms import SubmissionForm
 from .models import Review, Submission
 from .selectors import get_student_submissions
 from .services import SubmissionService
+
+logger = logging.getLogger(__name__)
 
 
 class TaskSubmissionView(LoginRequiredMixin, DetailView):
@@ -28,6 +32,27 @@ class TaskSubmissionView(LoginRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+
+        if request.user.role != "student":
+            messages.error(
+                request, "Только студенты могут отправлять работы на проверку."
+            )
+            return redirect("solutions:task_detail", pk=self.object.id)
+
+        existing_submission = self.object.submissions.filter(
+            student=request.user
+        ).exists()
+
+        if existing_submission:
+            logger.warning(
+                f"Пользователь {request.user} пытался повторно отправить работу для задания {self.object.id}"
+            )
+            messages.error(
+                request,
+                "Вы уже отправили работу на проверку. Повторная отправка невозможна.",
+            )
+            return redirect("solutions:task_detail", pk=self.object.id)
+
         form = SubmissionForm(request.POST, request.FILES)
 
         if form.is_valid():
@@ -35,11 +60,15 @@ class TaskSubmissionView(LoginRequiredMixin, DetailView):
                 SubmissionService.create_submission(
                     student=request.user,
                     task_id=self.object.id,
-                    uploaded_file=request.FILES["file"],
+                    uploaded_file=request.FILES.get("file"),
                 )
-                messages.success(request, "Работа успешно отправлена.")
+                messages.success(request, "Работа успешно отправлена на проверку.")
             except Exception as e:
-                messages.error(request, str(e))
+                logger.error(f"Ошибка в SubmissionService: {str(e)}")
+                messages.error(request, f"Ошибка: {str(e)}")
+        else:
+            for error in form.errors.values():
+                messages.error(request, error.as_text())
 
         return redirect("solutions:task_detail", pk=self.object.id)
 
