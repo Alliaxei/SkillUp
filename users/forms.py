@@ -28,6 +28,9 @@ class UserRegisterForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ("username", "last_name", "first_name", "middle_name", "email")
+        labels = {
+            "username": "Логин",
+        }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)

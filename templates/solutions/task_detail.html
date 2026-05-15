@@ -10,7 +10,15 @@
                     <li class="breadcrumb-item">
                         <a href="{% url 'core:index' %}" class="text-decoration-none">Главная</a>
                     </li>
-                    <li class="breadcrumb-item active">{{ task.title }}</li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'curriculum:module_list' %}" class="text-decoration-none">Модули</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'curriculum:module_detail' task.module.id %}" class="text-decoration-none">
+                            {{ task.module.title }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ task.title }}</li>
                 </ol>
             </nav>
 
@@ -41,16 +49,14 @@
                         <h4 class="fw-bold mb-4">Ваше решение</h4>
                         <div class="alert {% if user_submission.status == 'completed' %}alert-success{% elif user_submission.status == 'revision' %}alert-warning{% else %}alert-info{% endif %} rounded-4 border-0 p-4 mb-4">
                             <div class="d-flex align-items-center mb-2">
-                    <span class="fs-4 me-2">
-                        {% if user_submission.status == 'completed' %}✅{% elif user_submission.status == 'revision' %}
-                            ⚠️{% else %}📩{% endif %}
-                    </span>
+                                <span class="fs-4 me-2">
+                                    {% if user_submission.status == 'completed' %}✅{% elif user_submission.status == 'revision' %}⚠️{% else %}📩{% endif %}
+                                </span>
                                 <h5 class="fw-bold mb-0">Статус: {{ user_submission.get_status_display }}</h5>
                             </div>
                             <div class="ms-1 ps-4">
                                 {% if user_submission.review %}
-                                    <p class="mb-1">Ваш балл: <strong>{{ user_submission.review.score }}
-                                        / {{ task.max_score }}</strong></p>
+                                    <p class="mb-1">Ваш балл: <strong>{{ user_submission.review.score }} / {{ task.max_score }}</strong></p>
                                 {% endif %}
                                 <small class="text-secondary">Обновлено: {{ user_submission.updated_at|date:"d.m.Y H:i" }}</small>
                             </div>
@@ -76,9 +82,7 @@
                                     <div class="mb-3">
                                         {{ form.file }}
                                     </div>
-                                    <button type="submit" class="btn btn-primary btn-rounded px-4 shadow-sm">Обновить
-                                        решение
-                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-rounded px-4 shadow-sm">Обновить решение</button>
                                 </form>
                             </div>
                         {% endif %}
@@ -87,7 +91,7 @@
                         {% now "Y-m-d" as current_date %}
                         {% if task.deadline and task.deadline|date:"Y-m-d" < current_date %}
                             <div class="alert alert-danger rounded-4 border-0">
-                                Срок сдачи задания истек ({{ task.deadline|date:"d.m.Y" }}). Прием работ закрыт.
+                                Срок сдачи задания isteck ({{ task.deadline|date:"d.m.Y" }}). Прием работ закрыт.
                             </div>
                         {% else %}
                             <form method="post" enctype="multipart/form-data">
@@ -97,9 +101,7 @@
                                     {{ form.file }}
                                     <div class="form-text mt-2">Прикрепите архив с выполненной работой (zip/rar).</div>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-rounded px-5 shadow-sm">Отправить на
-                                    проверку
-                                </button>
+                                <button type="submit" class="btn btn-primary btn-rounded px-5 shadow-sm">Отправить на проверку</button>
                             </form>
                         {% endif %}
                     {% endif %}
@@ -107,9 +109,7 @@
                     <div class="text-center py-4">
                         <span class="fs-1 d-block mb-3">ℹ️</span>
                         <h5 class="fw-bold">Режим просмотра</h5>
-                        <p class="text-secondary mb-0">Вы просматриваете это задание как
-                            <strong>{{ user.get_role_display|default:"Сотрудник" }}</strong>. Отправка решений доступна
-                            только обучающимся.</p>
+                        <p class="text-secondary mb-0">Вы просматриваете это задание как <strong>{{ user.get_role_display|default:"Сотрудник" }}</strong>. Отправка решений доступна только обучающимся.</p>
                     </div>
                 {% endif %}
             </div>

@@ -2,12 +2,14 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Case, IntegerField, Value, When
+from django.db.models import Case, IntegerField, Q, Value, When
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView, UpdateView
 
 from curriculum.models import Task
 from curriculum.views import TeacherRequiredMixin
+from users.models import User
 
 from .forms import SubmissionForm
 from .models import Review, Submission
@@ -92,13 +94,40 @@ class TeacherSubmissionListView(TeacherRequiredMixin, ListView):
         if not self.request.user.is_superuser:
             queryset = queryset.filter(student__teacher=self.request.user)
 
-        return queryset.annotate(
-            status_priority=Case(
-                When(status=Submission.Status.PENDING, then=Value(0)),
-                default=Value(1),
-                output_field=IntegerField(),
-            )
-        ).order_by("status_priority", "-created_at")
+        search_query = self.request.GET.get("search", "").strip()
+        if search_query:
+            search_lower = search_query.lower()
+
+            matched_student_ids = [
+                user_id
+                for user_id, f_name, l_name in User.objects.values_list(
+                    "id", "first_name", "last_name"
+                )
+                if (f_name and f_name.lower().startswith(search_lower))
+                or (l_name and l_name.lower().startswith(search_lower))
+            ]
+
+            queryset = queryset.filter(student_id__in=matched_student_ids)
+
+        status_filter = self.request.GET.get("status", "")
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+
+        sort_by = self.request.GET.get("sort", "")
+        if sort_by == "date_asc":
+            queryset = queryset.order_by("created_at")
+        elif sort_by == "student":
+            queryset = queryset.order_by("student__last_name", "student__first_name")
+        else:
+            queryset = queryset.annotate(
+                status_priority=Case(
+                    When(status=Submission.Status.PENDING, then=Value(0)),
+                    default=Value(1),
+                    output_field=IntegerField(),
+                )
+            ).order_by("status_priority", "-created_at")
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -107,6 +136,10 @@ class TeacherSubmissionListView(TeacherRequiredMixin, ListView):
         context["pending_count"] = visible_submissions.filter(
             status=Submission.Status.PENDING
         ).count()
+
+        context["search_value"] = self.request.GET.get("search", "")
+        context["status_value"] = self.request.GET.get("status", "")
+        context["sort_value"] = self.request.GET.get("sort", "")
 
         return context
 

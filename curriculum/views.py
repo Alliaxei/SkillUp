@@ -2,8 +2,7 @@ import logging
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, QuerySet
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
 
 from solutions.models import Submission
@@ -11,7 +10,6 @@ from users.models import User
 
 from .forms import LectureForm, ModuleForm, TaskForm
 from .models import Lecture, LectureImage, Material, Module, Task
-from .selectors import get_module_with_content
 
 
 class ModuleListView(LoginRequiredMixin, ListView):
@@ -106,6 +104,9 @@ class LectureCreateView(TeacherRequiredMixin, CreateView):
     def form_invalid(self, form):
         logger.warning(f"Ошибка валидации формы лекции: {form.errors.as_json()}")
         return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse("curriculum:module_detail", kwargs={"pk": self.object.module.id})
 
 
 class LectureDetailView(LoginRequiredMixin, DetailView):

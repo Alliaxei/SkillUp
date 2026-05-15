@@ -3,39 +3,57 @@
 {% block title %}{{ lecture.title }} | EduWeb{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-9">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Главная</a></li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'curriculum:module_detail' lecture.module.id %}">{{ lecture.module.title }}</a>
-                </li>
-                <li class="breadcrumb-item active">{{ lecture.title }}</li>
-            </ol>
-        </nav>
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Главная</a></li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'curriculum:module_detail' lecture.module.id %}">{{ lecture.module.title }}</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ lecture.title }}</li>
+                </ol>
+            </nav>
 
-        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
-            <h1 class="fw-bold mb-4">{{ lecture.title }}</h1>
+            <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+                <h1 class="fw-bold mb-4">{{ lecture.title }}</h1>
 
-            <div class="lecture-content text-secondary">
-                {{ lecture.content|safe }}
-            </div>
-
-            {% if lecture.images.all %}
-                <hr class="my-5">
-                <h5 class="fw-bold mb-4">Дополнительные материалы:</h5>
-                <div class="row g-3">
-                    {% for img in lecture.images.all %}
-                        <div class="col-md-4">
-                            <a href="{{ img.image.url }}" target="_blank">
-                                <img src="{{ img.image.url }}" class="img-fluid rounded-4 shadow-sm" alt="Материал">
-                            </a>
-                        </div>
-                    {% endfor %}
+                <div class="lecture-content text-secondary">
+                    {{ lecture.content|safe }}
                 </div>
-            {% endif %}
+
+                {% if lecture.images.all %}
+                    <hr class="my-5">
+                    <h5 class="fw-bold mb-4">Дополнительные материалы:</h5>
+                    <div class="row g-3">
+                        {% for img in lecture.images.all %}
+                            <div class="col-md-4">
+                                <a href="{{ img.image.url }}" target="_blank">
+                                    <img src="{{ img.image.url }}" class="img-fluid rounded-4 shadow-sm" alt="Материал">
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
+    <style>
+        .lecture-content img {
+            width: 100% !important;
+            max-width: 1200px !important;
+            height: auto !important;
+            display: block;
+            margin: 2rem auto;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .lecture-content table {
+            width: 100% !important;
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+            border-collapse: collapse;
+        }
+    </style>
 {% endblock %}
