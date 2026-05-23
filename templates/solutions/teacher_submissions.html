@@ -27,11 +27,34 @@
             <li class="breadcrumb-item active">Очередь проверки</li>
         </ol>
     </nav>
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden p-4">
         <form method="get" class="row g-3 mb-4">
-            <div class="col-md-4">
+            <div class="col-md-8">
                 <input type="text" name="search" class="form-control btn-rounded px-3"
                        placeholder="Поиск по фамилии или имени..." value="{{ search_value }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-rounded w-100">Применить</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'solutions:teacher_submissions' %}" class="btn btn-outline-secondary btn-rounded w-100">Сбросить</a>
+            </div>
+
+            <div class="col-md-3">
+                <select name="module" class="form-select btn-rounded px-3" onchange="this.form.submit()">
+                    <option value="">Все модули (Фильтр)</option>
+                    {% for module in modules %}
+                        <option value="{{ module.id }}" {% if module_value == module.id|slugify %}selected{% endif %}>{{ module.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="task" class="form-select btn-rounded px-3">
+                    <option value="">Все задания (Фильтр)</option>
+                    {% for task in tasks %}
+                        <option value="{{ task.id }}" {% if task_value == task.id|slugify %}selected{% endif %}>{{ task.title }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="col-md-3">
                 <select name="status" class="form-select btn-rounded px-3">
@@ -44,14 +67,9 @@
             <div class="col-md-3">
                 <select name="sort" class="form-select btn-rounded px-3">
                     <option value="">Сначала новые (Сортировка)</option>
-                    <option value="date_asc" {% if sort_value == 'date_asc' %}selected{% endif %}>Сначала старые
-                    </option>
-                    <option value="student" {% if sort_value == 'student' %}selected{% endif %}>По алфавиту (Студент)
-                    </option>
+                    <option value="date_asc" {% if sort_value == 'date_asc' %}selected{% endif %}>Сначала старые</option>
+                    <option value="student" {% if sort_value == 'student' %}selected{% endif %}>По алфавиту (Студент)</option>
                 </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary btn-rounded w-100">Применить</button>
             </div>
         </form>
         <div class="table-responsive">
@@ -70,12 +88,17 @@
                     <tr {% if submission.status != 'pending' %}class="bg-light bg-opacity-50"{% endif %}>
                         <td class="ps-4">
                             <div class="fw-bold">{{ submission.student.get_full_name }}</div>
-                            <small class="text-muted">@{{ submission.student.username }}</small>
+                            <small class="text-muted">
+                                @{{ submission.student.username }}
+                                {% if submission.student.group %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill custom-badge-sm ms-1">{{ submission.student.group.title }}</span>
+                                {% endif %}
+                            </small>
                         </td>
                         <td>
-                    <span class="badge bg-primary bg-opacity-10 text-accent rounded-pill px-2 small">
-                        {{ submission.task.module.title }}
-                    </span>
+                            <span class="badge bg-primary bg-opacity-10 text-accent rounded-pill px-2 small">
+                                {{ submission.task.module.title }}
+                            </span>
                             <div class="small mt-1 text-dark">{{ submission.task.title }}</div>
                         </td>
                         <td>
@@ -88,14 +111,21 @@
                             {% endif %}
                         </td>
                         <td><span class="text-secondary small">{{ submission.created_at|date:"d.m.Y H:i" }}</span></td>
-                        <td class="pe-4 text-end">
-                            {% if not user.is_superuser %}
-                                <a href="{% url 'solutions:review_create' submission.id %}"
-                                   class="btn {% if submission.status == 'pending' %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-sm btn-rounded px-3">
-                                    {% if submission.status == 'pending' %}Проверить{% else %}Перепроверить{% endif %}
-                                </a>
-                            {% endif %}
-                        </td>
+                       <td class="pe-4 text-end">
+                           {% if not user.is_superuser %}
+                               {% if submission.status == 'pending' %}
+                                   <a href="{% url 'solutions:review_create' submission.id %}"
+                                      class="btn btn-primary btn-sm btn-rounded px-3">
+                                       Проверить
+                                   </a>
+                               {% else %}
+                                   <a href="{% url 'solutions:review_detail' submission.id %}"
+                                      class="btn btn-outline-secondary btn-sm btn-rounded px-3">
+                                       Результат
+                                   </a>
+                               {% endif %}
+                           {% endif %}
+                       </td>
                     </tr>
                 {% empty %}
                     <tr>

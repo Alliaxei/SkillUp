@@ -89,10 +89,12 @@ class TeacherSubmissionListView(TeacherRequiredMixin, ListView):
     context_object_name = "submissions"
 
     def get_queryset(self):
-        queryset = Submission.objects.select_related("student", "task", "task__module")
+        queryset = Submission.objects.select_related(
+            "student", "student__group", "task", "task__module"
+        )
 
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(student__teacher=self.request.user)
+            queryset = queryset.filter(student__group__teacher=self.request.user)
 
         search_query = self.request.GET.get("search", "").strip()
         if search_query:
@@ -108,6 +110,14 @@ class TeacherSubmissionListView(TeacherRequiredMixin, ListView):
             ]
 
             queryset = queryset.filter(student_id__in=matched_student_ids)
+
+        module_filter = self.request.GET.get("module", "")
+        if module_filter:
+            queryset = queryset.filter(task__module_id=module_filter)
+
+        task_filter = self.request.GET.get("task", "")
+        if task_filter:
+            queryset = queryset.filter(task_id=task_filter)
 
         status_filter = self.request.GET.get("status", "")
         if status_filter:
@@ -137,7 +147,19 @@ class TeacherSubmissionListView(TeacherRequiredMixin, ListView):
             status=Submission.Status.PENDING
         ).count()
 
+        from curriculum.models import Module, Task
+
+        context["modules"] = Module.objects.all()
+
+        selected_module_id = self.request.GET.get("module", "")
+        if selected_module_id:
+            context["tasks"] = Task.objects.filter(module_id=selected_module_id)
+        else:
+            context["tasks"] = Task.objects.all()
+
         context["search_value"] = self.request.GET.get("search", "")
+        context["module_value"] = selected_module_id
+        context["task_value"] = self.request.GET.get("task", "")
         context["status_value"] = self.request.GET.get("status", "")
         context["sort_value"] = self.request.GET.get("sort", "")
 
@@ -148,6 +170,20 @@ class ReviewCreateView(TeacherRequiredMixin, UpdateView):
     model = Review
     fields = ["score", "comment"]
     template_name = "solutions/review_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            messages.error(request, "Администратор не может проверять работы.")
+            return redirect("solutions:teacher_submissions")
+
+        # Запрет повторной проверки
+        submission_id = self.kwargs.get("submission_id")
+        submission = get_object_or_404(Submission, id=submission_id)
+        if submission.status != Submission.Status.PENDING:
+            messages.error(request, "Эта работа уже была проверена.")
+            return redirect("solutions:teacher_submissions")
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         submission_id = self.kwargs.get("submission_id")
@@ -180,3 +216,13 @@ class ReviewCreateView(TeacherRequiredMixin, UpdateView):
             f"Результат проверки для {submission.student.get_full_name()} сохранен.",
         )
         return redirect("solutions:teacher_submissions")
+
+
+class ReviewDetailView(TeacherRequiredMixin, DetailView):
+    model = Review
+    template_name = "solutions/review_detail.html"
+    context_object_name = "review"
+
+    def get_object(self, queryset=None):
+        submission_id = self.kwargs.get("submission_id")
+        return get_object_or_404(Review, submission_id=submission_id)

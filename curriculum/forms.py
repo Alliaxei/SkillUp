@@ -31,7 +31,12 @@ class TaskForm(forms.ModelForm):
     deadline = forms.DateField(
         label="Крайний срок сдачи",
         widget=forms.DateInput(
-            attrs={"type": "date", "class": "form-control btn-rounded px-3 py-2"}
+            format="%Y-%m-%d",
+            attrs={
+                "type": "text",
+                "class": "form-control btn-rounded px-3 py-2 datepicker",
+                "placeholder": "Выберите дату...",
+            },
         ),
     )
 
@@ -84,7 +89,7 @@ class LectureForm(forms.ModelForm):
 
     class Meta:
         model = Lecture
-        fields = ["module", "title", "content", "order"]
+        fields = ["module", "title", "content"]
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

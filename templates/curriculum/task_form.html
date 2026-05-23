@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Новое задание | EduWeb{% endblock %}
+{% block title %}{% if object %}Редактирование задания{% else %}Новое задание{% endif %} | EduWeb{% endblock %}
 
 {% block content %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <div class="row justify-content-center">
         <div class="col-lg-7">
             <nav aria-label="breadcrumb" class="mb-4">
@@ -12,7 +14,7 @@
                             <i class="bi bi-house-door me-1"></i>Главная
                         </a>
                     </li>
-                    <li class="breadcrumb-item active">Новое задание</li>
+                    <li class="breadcrumb-item active">{% if object %}Редактирование задания{% else %}Новое задание{% endif %}</li>
                 </ol>
             </nav>
 
@@ -21,7 +23,7 @@
                     <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
                         <span class="text-accent fs-3">📝</span>
                     </div>
-                    <h3 class="fw-bold text-dark">Создание задания</h3>
+                    <h3 class="fw-bold text-dark">{% if object %}Редактирование задания{% else %}Создание задания{% endif %}</h3>
                     <p class="text-secondary small">Заполните детали практической работы для студентов</p>
                 </div>
 
@@ -75,27 +77,45 @@
 
                     <div class="d-grid gap-2 mt-4">
                         <button type="submit" class="btn btn-primary btn-rounded py-2 fw-bold text-uppercase shadow-sm">
-                            Опубликовать задание
+                            Сохранить
                         </button>
-                        <a href="{% url 'core:index' %}" class="btn btn-outline-secondary btn-rounded py-2">
-                            Отмена
-                        </a>
+                        {% if object %}
+                            <a href="{% url 'solutions:task_detail' object.id %}" class="btn btn-outline-secondary btn-rounded py-2">
+                                Отмена
+                            </a>
+                        {% else %}
+                            <a href="{% url 'core:index' %}" class="btn btn-outline-secondary btn-rounded py-2">
+                                Отмена
+                            </a>
+                        {% endif %}
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Инициализация календаря Flatpickr
+            flatpickr(".datepicker", {
+                locale: "ru",
+                dateFormat: "Y-m-d",     // Формат, который отправляется в Django и берется из базы
+                altInput: true,          // Включает красивое отображение поверх реального инпута
+                altFormat: "d.m.Y",      // Тот самый формат ДД.ММ.ГГГГ, который увидит пользователь
+                allowInput: true
+            });
+
             const textarea = document.getElementById('taskDescriptionTextarea');
             const counter = document.getElementById('charCounter');
             const maxScoreInput = document.getElementById('maxScoreInput');
             const maxLength = 1500;
 
             if (textarea) {
-                textarea.addEventListener('input', function () {
-                    const currentLength = this.value.length;
+                const updateCounter = () => {
+                    const currentLength = textarea.value.length;
                     counter.textContent = `${currentLength} / ${maxLength}`;
                     if (currentLength >= maxLength * 0.9) {
                         counter.classList.add('text-danger');
@@ -104,7 +124,10 @@
                         counter.classList.remove('text-danger');
                         counter.classList.add('text-muted');
                     }
-                });
+                };
+
+                textarea.addEventListener('input', updateCounter);
+                updateCounter();
             }
 
             if (maxScoreInput) {
@@ -129,6 +152,11 @@
         textarea.form-control {
             resize: vertical;
             min-height: 150px;
+        }
+        .flatpickr-input[type="hidden"] + input {
+            background-color: #fff !important;
+            border-radius: 50rem !important;
+            padding: 0.5rem 1rem !important;
         }
     </style>
 {% endblock %}

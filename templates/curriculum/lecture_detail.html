@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ lecture.title }} | EduWeb{% endblock %}
+{% block title %}Учебные модули | EduWeb{% endblock %}
 
 {% block content %}
     <div class="row justify-content-center">
@@ -14,6 +14,14 @@
                     <li class="breadcrumb-item active">{{ lecture.title }}</li>
                 </ol>
             </nav>
+
+            {% if user.role == 'teacher' or user.is_staff %}
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="{% url 'curriculum:lecture_edit' lecture.id %}" class="btn btn-outline-primary btn-rounded fw-bold btn-sm px-3">
+                        <i class="bi bi-pencil-square me-2"></i>Редактировать лекцию
+                    </a>
+                </div>
+            {% endif %}
 
             <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
                 <h1 class="fw-bold mb-4">{{ lecture.title }}</h1>

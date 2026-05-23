@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Новая лекция | EduWeb{% endblock %}
+{% block title %}{% if object %}Редактирование лекции{% else %}Новая лекция{% endif %} | EduWeb{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-9"> <nav aria-label="breadcrumb" class="mb-4">
+    <div class="col-lg-9">
+        <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <a href="{% url 'core:index' %}" class="text-decoration-none">
                         <i class="bi bi-house-door me-1"></i>Главная
                     </a>
                 </li>
-                <li class="breadcrumb-item active">Новая лекция</li>
+                <li class="breadcrumb-item active">{% if object %}Редактирование лекции{% else %}Новая лекция{% endif %}</li>
             </ol>
         </nav>
 
@@ -20,7 +21,7 @@
                 <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
                     <span class="text-accent fs-3">📖</span>
                 </div>
-                <h3 class="fw-bold text-dark">Создание новой лекции</h3>
+                <h3 class="fw-bold text-dark">{% if object %}Редактирование лекции{% else %}Создание новой лекции{% endif %}</h3>
                 <p class="text-secondary small">Используйте визуальный редактор для оформления материала</p>
             </div>
 
@@ -54,20 +55,19 @@
                     <div class="form-text ms-2">Вы можете выбрать несколько файлов для галереи под лекцией.</div>
                 </div>
 
-                <div class="row mt-5">
-                    <div class="col-md-6 mb-4">
-                        <label class="form-label text-secondary small fw-bold ms-2">{{ form.order.label }}</label>
-                        {{ form.order }}
-                    </div>
-                </div>
-
                 <div class="d-grid gap-2 mt-4">
                     <button type="submit" class="btn btn-primary btn-rounded py-2 fw-bold text-uppercase shadow-sm">
-                        Опубликовать лекцию
+                        {% if object %}Сохранить изменения{% else %}Опубликовать лекцию{% endif %}
                     </button>
-                    <a href="{% url 'core:index' %}" class="btn btn-outline-secondary btn-rounded py-2">
-                        Отмена
-                    </a>
+                    {% if object %}
+                        <a href="{% url 'curriculum:lecture_detail' object.id %}" class="btn btn-outline-secondary btn-rounded py-2">
+                            Отмена
+                        </a>
+                    {% else %}
+                        <a href="{% url 'core:index' %}" class="btn btn-outline-secondary btn-rounded py-2">
+                            Отмена
+                        </a>
+                    {% endif %}
                 </div>
             </form>
         </div>

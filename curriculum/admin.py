@@ -17,8 +17,7 @@ class TaskInline(admin.StackedInline):
 
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):
-    list_display = ("order", "title", "created_at")
-    list_editable = ("order",)
+    list_display = ("title", "created_at")
     list_display_links = ("title",)
     inlines = [MaterialInline, TaskInline]
 

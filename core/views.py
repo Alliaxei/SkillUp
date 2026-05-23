@@ -19,11 +19,11 @@ class IndexView(TemplateView):
 
         if user.is_authenticated and (user.role == User.Role.TEACHER or user.is_staff):
             context["total_students"] = User.objects.filter(
-                teacher=user, role=User.Role.STUDENT
+                group__teacher=user, role=User.Role.STUDENT
             ).count()
 
             context["pending_count"] = Submission.objects.filter(
-                student__teacher=user, status=Submission.Status.PENDING
+                student__group__teacher=user, status=Submission.Status.PENDING
             ).count()
 
         return context

@@ -9,19 +9,20 @@ class CustomUserAdmin(UserAdmin):
     list_display = (
         "username",
         "email",
-        "last_name",
         "first_name",
+        "last_name",
         "middle_name",
         "role",
-        "teacher",
+        "group",
         "is_staff",
     )
     search_fields = ("username", "last_name", "email")
-    list_filter = ("role", "teacher", "is_staff", "is_superuser", "groups")
 
+    list_filter = ("role", "group", "is_staff", "is_superuser", "is_active")
     fieldsets = UserAdmin.fieldsets + (
-        ("Дополнительно", {"fields": ("middle_name", "role", "teacher")}),
+        (None, {"fields": ("middle_name", "role", "group")}),
     )
+
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ("Дополнительно", {"fields": ("middle_name", "role", "teacher")}),
+        (None, {"fields": ("middle_name", "role", "group")}),
     )

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Группа {{ group.title }} | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:index' %}" class="text-decoration-none">Главная</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'curriculum:teacher_groups_list' %}" class="text-decoration-none">Мои группы</a></li>
+                <li class="breadcrumb-item active">Группа {{ group.title }}</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1">Группа <span class="text-accent">{{ group.title }}</span></h2>
+                <p class="text-secondary mb-0">Преподаватель: {{ group.teacher.get_full_name|default:"Не назначен" }}</p>
+            </div>
+            <span class="badge bg-primary bg-opacity-10 text-accent rounded-pill px-4 py-2 fs-6">
+                👥 {{ students.count }} студентов
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <h5 class="fw-bold mb-3">Добавить студента в группу</h5>
+    {% if available_students %}
+        <form method="post" action="{% url 'curriculum:add_student_to_group' group.id %}" class="row g-3 align-items-center">
+            {% csrf_token %}
+            <div class="col-md-8">
+                <select name="student_id" class="form-select btn-rounded px-3" required>
+                    <option value="">-- Выберите студента из списка оставшихся --</option>
+                    {% for student in available_students %}
+                        <option value="{{ student.id }}">{{ student.get_full_name }} (@{{ student.username }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary btn-rounded w-100 fw-bold shadow-sm">
+                    <i class="bi bi-person-plus me-2"></i>Добавить
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <p class="text-secondary mb-0 small">Нет доступных для добавления студентов (все студенты уже распределены по группам).</p>
+    {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3 border-0">ФИО студента</th>
+                    <th class="py-3 border-0">Логин</th>
+                    <th class="py-3 border-0">Email</th>
+                    <th class="py-3 border-0">Дата регистрации</th>
+                    <th class="pe-4 py-3 border-0 text-end">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold">{{ student.get_full_name }}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark rounded-pill px-3">@{{ student.username }}</span>
+                    </td>
+                    <td>{{ student.email|default:"—" }}</td>
+                    <td class="text-secondary small">
+                        {{ student.date_joined|date:"d.m.Y H:i" }}
+                    </td>
+                    <td class="pe-4 text-end">
+                        <button type="button"
+                                class="btn btn-outline-danger btn-sm btn-rounded px-3"
+                                data-bs-toggle="modal"
+                                data-bs-target="#removeStudentModal"
+                                data-student-id="{{ student.id }}"
+                                data-student-name="{{ student.get_full_name }}">
+                            Исключить
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-secondary">
+                        В этой группе пока нет студентов.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="removeStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold modal-title">Подтверждение исключения</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'curriculum:remove_student_from_group' group.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="student_id" id="modalStudentId">
+                <div class="modal-body px-4">
+                    <p class="text-secondary mb-0">Вы уверены, что хотите исключить студента <strong id="modalStudentName" class="text-dark"></strong> из группы?</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light btn-rounded px-4" data-bs-dismiss="modal">Нет</button>
+                    <button type="submit" class="btn btn-danger btn-rounded px-4 shadow-sm">Да, исключить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const removeStudentModal = document.getElementById('removeStudentModal');
+    if (removeStudentModal) {
+        removeStudentModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const studentId = button.getAttribute('data-student-id');
+            const studentName = button.getAttribute('data-student-name');
+
+            const inputId = removeStudentModal.querySelector('#modalStudentId');
+            const textName = removeStudentModal.querySelector('#modalStudentName');
+
+            inputId.value = studentId;
+            textName.textContent = studentName;
+        });
+    }
+</script>
+{% endblock %}

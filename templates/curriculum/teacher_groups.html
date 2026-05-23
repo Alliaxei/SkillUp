@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои группы | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="fw-bold">Учебные группы</h2>
+        <p class="text-secondary mb-0">Список групп, закрепленных за вами.</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <button class="btn btn-primary btn-rounded px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+            <i class="bi bi-plus-lg me-2"></i>Новая группа
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for group in groups %}
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h4 class="fw-bold text-accent mb-0">{{ group.title }}</h4>
+                <span class="badge bg-primary bg-opacity-10 text-accent rounded-pill px-3">
+                    👥 {{ group.students.count }} студ.
+                </span>
+            </div>
+            <div class="text-secondary small mb-4">
+                <div class="mb-1"><i class="bi bi-calendar3 me-2"></i>Создана: {{ group.created_at|date:"d.m.Y" }}</div>
+            </div>
+            <a href="{% url 'curriculum:group_detail' group.id %}" class="btn btn-outline-primary btn-rounded w-100 mt-auto">
+                Посмотреть состав
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-secondary">У вас пока нет созданных групп.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="modal fade" id="createGroupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold modal-title">Создание новой группы</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'curriculum:group_create' %}">
+                {% csrf_token %}
+                <div class="modal-body px-4">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">Название группы</label>
+                        <input type="text" name="title" class="form-control btn-rounded px-3" placeholder="Например: 42и" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light btn-rounded px-4" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary btn-rounded px-4 shadow-sm">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

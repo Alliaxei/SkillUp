@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Результаты проверки | EduWeb{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:index' %}" class="text-decoration-none">Главная</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'solutions:teacher_submissions' %}" class="text-decoration-none">Очередь проверки</a></li>
+                <li class="breadcrumb-item active">Результаты проверки</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">Результаты <span class="text-accent">проверки</span></h2>
+        <p class="text-secondary">Просмотр выставленной оценки и замечаний к работе.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-light">
+            <small class="text-secondary text-uppercase fw-bold d-block mb-2">Выставленный балл</small>
+            <h1 class="fw-bold text-primary mb-0">{{ review.score }}</h1>
+            <small class="text-muted">из {{ review.submission.task.max_score }} возможных</small>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3">Информация о работе</h5>
+            <table class="table table-borderless sm mb-0">
+                <tr>
+                    <td class="text-secondary ps-0 w-25">Студент:</td>
+                    <td class="fw-bold text-dark">{{ review.submission.student.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <td class="text-secondary ps-0">Задание:</td>
+                    <td class="text-dark">{{ review.submission.task.title }}</td>
+                </tr>
+                <tr>
+                    <td class="text-secondary ps-0">Проверил:</td>
+                    <td class="text-dark">{{ review.teacher.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <td class="text-secondary ps-0">Статус:</td>
+                    <td>
+                        {% if review.submission.status == 'completed' %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Проверено</span>
+                        {% else %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Доработка</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3">Комментарий преподавателя</h5>
+            <div class="p-3 bg-light rounded-3 text-dark">
+                {{ review.comment|default:"*Преподаватель не оставил текстового комментария.*"|linebreaksbr }}
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'solutions:teacher_submissions' %}" class="btn btn-secondary btn-rounded px-4">Назад к списку</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

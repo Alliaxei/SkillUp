@@ -28,7 +28,7 @@
 {% endif %}
 
 <div class="row g-4">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card border-0 shadow-sm rounded-4 p-5 h-100">
             <div class="mb-4">
                 <span class="fs-2">🔍</span>
@@ -41,7 +41,25 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-5 h-100">
+            <div class="mb-4">
+                <span class="fs-2">👥</span>
+                <h4 class="fw-bold text-dark mt-3">Мои группы</h4>
+                <p class="text-secondary">Создание учебных групп, просмотр списков студентов и закрепление за курсами.</p>
+            </div>
+            <div class="d-grid gap-2 mt-auto">
+                <a href="#createGroupModal" data-bs-toggle="modal" class="btn btn-outline-primary btn-rounded py-2 fw-bold">
+                    <i class="bi bi-plus-circle me-2"></i>Создать группу
+                </a>
+                <a href="{% url 'curriculum:teacher_groups_list' %}" class="btn btn-primary btn-rounded py-2 fw-bold shadow-sm">
+                    Открыть списки групп
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
         <div class="card border-0 shadow-sm rounded-4 p-5 h-100">
             <div class="mb-4">
                 <span class="fs-2">📚</span>
@@ -65,6 +83,30 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createGroupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold modal-title">Создание новой группы</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'curriculum:group_create' %}">
+                {% csrf_token %}
+                <div class="modal-body px-4">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">Название группы</label>
+                        <input type="text" name="title" class="form-control btn-rounded px-3" placeholder="Например: 42и" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light btn-rounded px-4" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary btn-rounded px-4 shadow-sm">Создать</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Создание модуля | EduWeb{% endblock %}
+{% block title %}{% if object %}Редактирование модуля{% else %}Создание модуля{% endif %} | EduWeb{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -12,7 +12,7 @@
                         <i class="bi bi-house-door me-1"></i>Главная
                     </a>
                 </li>
-                <li class="breadcrumb-item active">Новый модуль</li>
+                <li class="breadcrumb-item active">{% if object %}Редактирование модуля{% else %}Новый module{% endif %}</li>
             </ol>
         </nav>
 
@@ -21,8 +21,8 @@
                 <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
                     <span class="text-accent fs-3">📁</span>
                 </div>
-                <h3 class="fw-bold text-dark">Новый учебный модуль</h3>
-                <p class="text-secondary small">Укажите название и описание для нового этапа обучения</p>
+                <h3 class="fw-bold text-dark">{% if object %}Редактирование модуля{% else %}Новый учебный модуль{% endif %}</h3>
+                <p class="text-secondary small">Укажите название и описание для этапа обучения</p>
             </div>
 
             <form method="post">
@@ -49,11 +49,17 @@
 
                 <div class="d-grid gap-2 mt-5">
                     <button type="submit" class="btn btn-primary btn-rounded py-2 fw-bold text-uppercase shadow-sm">
-                        Создать модуль
+                        {% if object %}Сохранить изменения{% else %}Создать модуль{% endif %}
                     </button>
-                    <a href="{% url 'core:index' %}" class="btn btn-outline-secondary btn-rounded py-2">
-                        Отмена
-                    </a>
+                    {% if object %}
+                        <a href="{% url 'curriculum:module_detail' object.id %}" class="btn btn-outline-secondary btn-rounded py-2">
+                            Отмена
+                        </a>
+                    {% else %}
+                        <a href="{% url 'core:index' %}" class="btn btn-outline-secondary btn-rounded py-2">
+                            Отмена
+                        </a>
+                    {% endif %}
                 </div>
             </form>
         </div>
@@ -66,18 +72,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const counter = document.getElementById('charCounter');
     const maxLength = 1000;
 
-    textarea.addEventListener('input', function() {
-        const currentLength = this.value.length;
-        counter.textContent = `${currentLength} / ${maxLength}`;
+    if (textarea && counter) {
+        const updateCounter = () => {
+            const currentLength = textarea.value.length;
+            counter.textContent = `${currentLength} / ${maxLength}`;
 
-        if (currentLength >= maxLength * 0.9) {
-            counter.classList.add('text-danger');
-            counter.classList.remove('text-muted');
-        } else {
-            counter.classList.remove('text-danger');
-            counter.classList.add('text-muted');
-        }
-    });
+            if (currentLength >= maxLength * 0.9) {
+                counter.classList.add('text-danger');
+                counter.classList.remove('text-muted');
+            } else {
+                counter.classList.remove('text-danger');
+                counter.classList.add('text-muted');
+            }
+        };
+
+        textarea.addEventListener('input', updateCounter);
+        updateCounter();
+    }
 });
 </script>
 

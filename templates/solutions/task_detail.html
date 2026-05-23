@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ task.title }} | EduWeb{% endblock %}
+{% block title %}Учебные модули | EduWeb{% endblock %}
 
 {% block content %}
     <div class="row justify-content-center">
@@ -91,7 +91,7 @@
                         {% now "Y-m-d" as current_date %}
                         {% if task.deadline and task.deadline|date:"Y-m-d" < current_date %}
                             <div class="alert alert-danger rounded-4 border-0">
-                                Срок сдачи задания isteck ({{ task.deadline|date:"d.m.Y" }}). Прием работ закрыт.
+                                Срок сдачи задания истек ({{ task.deadline|date:"d.m.Y" }}). Прием работ закрыт.
                             </div>
                         {% else %}
                             <form method="post" enctype="multipart/form-data">
@@ -109,7 +109,15 @@
                     <div class="text-center py-4">
                         <span class="fs-1 d-block mb-3">ℹ️</span>
                         <h5 class="fw-bold">Режим просмотра</h5>
-                        <p class="text-secondary mb-0">Вы просматриваете это задание как <strong>{{ user.get_role_display|default:"Сотрудник" }}</strong>. Отправка решений доступна только обучающимся.</p>
+                        <p class="text-secondary mb-3">Вы просматриваете это задание как <strong>{{ user.get_role_display|default:"Сотрудник" }}</strong>. Отправка решений доступна только обучающимся.</p>
+
+                        {% if user.role == 'teacher' or user.is_staff %}
+                            <div class="mt-4 pt-3 border-top">
+                                <a href="{% url 'curriculum:task_edit' task.id %}" class="btn btn-outline-primary btn-rounded px-4 fw-bold">
+                                    <i class="bi bi-pencil-square me-2"></i>Редактировать задание
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>

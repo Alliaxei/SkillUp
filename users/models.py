@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from core.models import BaseModel
+from curriculum.models import StudentGroup
 
 
 class User(AbstractUser, BaseModel):
@@ -13,14 +14,13 @@ class User(AbstractUser, BaseModel):
     role = models.CharField(
         max_length=10, choices=Role.choices, default=Role.STUDENT, verbose_name="Роль"
     )
-    teacher = models.ForeignKey(
-        "self",
+    group = models.ForeignKey(
+        StudentGroup,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        limit_choices_to={"role": "teacher"},
         related_name="students",
-        verbose_name="Закрепленный преподаватель",
+        verbose_name="Учебная группа",
     )
 
     class Meta:

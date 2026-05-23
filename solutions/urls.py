@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     ReviewCreateView,
+    ReviewDetailView,
     StudentResultsListView,
     TaskSubmissionView,
     TeacherSubmissionListView,
@@ -21,5 +22,10 @@ urlpatterns = [
         "teacher/review/<int:submission_id>/",
         ReviewCreateView.as_view(),
         name="review_create",
+    ),
+    path(
+        "teacher/submissions/<int:submission_id>/result/",
+        ReviewDetailView.as_view(),
+        name="review_detail",
     ),
 ]
