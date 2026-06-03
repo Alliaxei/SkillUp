@@ -11,15 +11,14 @@
                         <a href="{% url 'core:index' %}" class="text-decoration-none">Главная</a>
                     </li>
                     <li class="breadcrumb-item">
-                        <a href="{% url 'solutions:teacher_submissions' %}" class="text-decoration-none">Очередь
-                            проверки</a>
+                        <a href="{% url 'solutions:teacher_submissions' %}" class="text-decoration-none">Очередь проверки</a>
                     </li>
                     <li class="breadcrumb-item active">Проверка работы</li>
                 </ol>
             </nav>
+
             <div class="card border-0 shadow-sm rounded-4 p-5 mb-4">
-                <h4 class="fw-bold mb-4">Проверка работы: <span
-                        class="text-accent">{{ submission.student.get_full_name }}</span></h4>
+                <h4 class="fw-bold mb-4">Проверка работы: <span class="text-accent">{{ submission.student.get_full_name }}</span></h4>
 
                 <div class="bg-light p-4 rounded-4 mb-4">
                     <div class="row">
@@ -34,11 +33,12 @@
                     </div>
                 </div>
 
-                <form method="post">
+                <form method="post" id="reviewForm">
                     {% csrf_token %}
+                    <input type="hidden" name="action" id="actionField" value="score">
+
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">Балл
-                            (макс. {{ submission.task.max_score }})</label>
+                        <label class="form-label text-secondary small fw-bold">Балл (макс. {{ submission.task.max_score }})</label>
                         <input type="text"
                                name="score"
                                id="scoreInput"
@@ -46,6 +46,7 @@
                                inputmode="numeric"
                                required>
                     </div>
+
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label class="form-label text-secondary small fw-bold mb-0">Комментарий / Замечания</label>
@@ -59,14 +60,13 @@
                                   placeholder="Введите замечания по работе..."
                                   style="resize: vertical; min-height: 100px;"></textarea>
                     </div>
-                    <div class="alert alert-warning small border-0 rounded-4">
-                        Установка балла 0 автоматически отправит работу на доработку.
-                    </div>
 
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary btn-rounded px-5">Выставить оценку</button>
-                        <a href="{% url 'solutions:teacher_submissions' %}"
-                           class="btn btn-outline-secondary btn-rounded px-4">Отмена</a>
+                        <button type="submit" class="btn btn-primary btn-rounded px-4" onclick="setAction('score')">Выставить оценку</button>
+                        <button type="submit" class="btn btn-warning btn-rounded px-4 text-dark fw-bold" onclick="setAction('revision')">
+                            Отправить на доработку
+                        </button>
+                        <a href="{% url 'solutions:teacher_submissions' %}" class="btn btn-outline-secondary btn-rounded px-4">Отмена</a>
                     </div>
                 </form>
             </div>
@@ -74,53 +74,36 @@
     </div>
 
     <script>
+        function setAction(action) {
+            document.getElementById('actionField').value = action;
+            if (action === 'revision') {
+                // Если отправляем на доработку, поле балла необязательно
+                document.getElementById('scoreInput').required = false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const scoreInput = document.getElementById('scoreInput');
             const maxScore = parseInt("{{ submission.task.max_score }}") || 100;
-
-            scoreInput.addEventListener('keydown', function (e) {
-                if ([46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
-                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
-                    (e.keyCode === 67 && (e.ctrlKey === true || e.metaKey === true)) ||
-                    (e.keyCode === 86 && (e.ctrlKey === true || e.metaKey === true)) ||
-                    (e.keyCode === 88 && (e.ctrlKey === true || e.metaKey === true)) ||
-                    (e.keyCode >= 35 && e.keyCode <= 39)) {
-                    return;
-                }
-                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                    e.preventDefault();
-                }
-            });
+            const textarea = document.getElementById('commentTextarea');
+            const counter = document.getElementById('charCounter');
 
             scoreInput.addEventListener('input', function () {
                 let value = this.value.replace(/\D/g, '');
-
                 if (value !== '') {
                     let numValue = parseInt(value);
-                    if (numValue > maxScore) {
-                        value = maxScore.toString();
-                    }
-                    if (value.length > 1 && value.startsWith('0')) {
-                        value = parseInt(value).toString();
-                    }
+                    if (numValue > maxScore) value = maxScore.toString();
+                    if (value.length > 1 && value.startsWith('0')) value = parseInt(value).toString();
                 }
                 this.value = value;
             });
-        });
-        const textarea = document.getElementById('commentTextarea');
-        const counter = document.getElementById('charCounter');
 
-        textarea.addEventListener('input', function () {
-            const currentLength = this.value.length;
-            counter.textContent = `${currentLength} / 500`;
-
-            if (currentLength >= 450) {
-                counter.classList.add('text-danger');
-                counter.classList.remove('text-muted');
-            } else {
-                counter.classList.remove('text-danger');
-                counter.classList.add('text-muted');
-            }
+            textarea.addEventListener('input', function () {
+                const currentLength = this.value.length;
+                counter.textContent = `${currentLength} / 500`;
+                counter.classList.toggle('text-danger', currentLength >= 450);
+                counter.classList.toggle('text-muted', currentLength < 450);
+            });
         });
     </script>
 {% endblock %}

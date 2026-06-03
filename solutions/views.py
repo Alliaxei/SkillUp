@@ -36,41 +36,30 @@ class TaskSubmissionView(LoginRequiredMixin, DetailView):
         self.object = self.get_object()
 
         if request.user.role != "student":
-            messages.error(
-                request, "Только студенты могут отправлять работы на проверку."
-            )
+            messages.error(request, "Только студенты могут отправлять работы.")
             return redirect("solutions:task_detail", pk=self.object.id)
 
-        existing_submission = self.object.submissions.filter(
-            student=request.user
-        ).exists()
+        user_submission = self.object.submissions.filter(student=request.user).first()
 
-        if existing_submission:
-            logger.warning(
-                f"Пользователь {request.user} пытался повторно отправить работу для задания {self.object.id}"
-            )
-            messages.error(
-                request,
-                "Вы уже отправили работу на проверку. Повторная отправка невозможна.",
-            )
+        if user_submission and user_submission.status != "revision":
+            messages.error(request, "Вы не можете повторно отправить эту работу.")
             return redirect("solutions:task_detail", pk=self.object.id)
 
         form = SubmissionForm(request.POST, request.FILES)
-
         if form.is_valid():
             try:
-                SubmissionService.create_submission(
-                    student=request.user,
-                    task_id=self.object.id,
-                    uploaded_file=request.FILES.get("file"),
-                )
-                messages.success(request, "Работа успешно отправлена на проверку.")
+                if user_submission and user_submission.status == "revision":
+                    user_submission.file = request.FILES.get("file")
+                    user_submission.status = "pending"
+                    user_submission.save()
+                    messages.success(
+                        request, "Исправленная работа отправлена на проверку."
+                    )
+                else:
+                    SubmissionService.create_submission(...)
+                    messages.success(request, "Работа успешно отправлена.")
             except Exception as e:
-                logger.error(f"Ошибка в SubmissionService: {str(e)}")
                 messages.error(request, f"Ошибка: {str(e)}")
-        else:
-            for error in form.errors.values():
-                messages.error(request, error.as_text())
 
         return redirect("solutions:task_detail", pk=self.object.id)
 
@@ -176,7 +165,6 @@ class ReviewCreateView(TeacherRequiredMixin, UpdateView):
             messages.error(request, "Администратор не может проверять работы.")
             return redirect("solutions:teacher_submissions")
 
-        # Запрет повторной проверки
         submission_id = self.kwargs.get("submission_id")
         submission = get_object_or_404(Submission, id=submission_id)
         if submission.status != Submission.Status.PENDING:
@@ -199,22 +187,28 @@ class ReviewCreateView(TeacherRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        action = self.request.POST.get("action")
         review = form.save(commit=False)
         review.teacher = self.request.user
-        review.save()
 
         submission = review.submission
-        submission.status = (
-            Submission.Status.COMPLETED
-            if review.score > 0
-            else Submission.Status.REVISION
-        )
-        submission.save()
 
-        messages.success(
-            self.request,
-            f"Результат проверки для {submission.student.get_full_name()} сохранен.",
-        )
+        if action == "revision":
+            review.score = 0
+            review.save()
+            submission.status = Submission.Status.REVISION
+            submission.save()
+            messages.info(self.request, "Работа отправлена на доработку.")
+        else:
+            review.save()
+            submission.status = (
+                Submission.Status.COMPLETED
+                if review.score > 0
+                else Submission.Status.REVISION
+            )
+            submission.save()
+            messages.success(self.request, "Результат проверки сохранен.")
+
         return redirect("solutions:teacher_submissions")
 
 

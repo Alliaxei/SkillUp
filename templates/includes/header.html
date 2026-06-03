@@ -7,15 +7,8 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 {% if user.is_authenticated %}
-                    {% if user.role == 'teacher' or user.is_staff %}
-                        <li class="nav-item">
-                            <a class="nav-link text-accent fw-bold" href="{% url 'solutions:teacher_submissions' %}">
-                                Проверка{% if pending_count %} ({{ pending_count }}){% endif %}
-                            </a>
-                        </li>
-                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'curriculum:module_list' %}">Обучение</a>
+                        <a class="nav-link" href="{% url 'curriculum:module_list' %}">Учебные модули</a>
                     </li>
 
                     <li class="nav-item ms-lg-4 me-lg-2">

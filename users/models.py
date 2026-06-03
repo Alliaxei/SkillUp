@@ -9,6 +9,7 @@ class User(AbstractUser, BaseModel):
     class Role(models.TextChoices):
         STUDENT = "student", "Студент"
         TEACHER = "teacher", "Преподаватель"
+        ADMIN = "admin", "Администратор"
 
     middle_name = models.CharField(max_length=150, blank=True, verbose_name="Отчество")
     role = models.CharField(

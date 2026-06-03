@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Доступ ограничен | EduWeb{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="card border-0 shadow-sm rounded-4 p-5 mx-auto" style="max-width: 600px;">
+        <span class="fs-1">🚫</span>
+        <h2 class="fw-bold mt-3">Группа не найдена</h2>
+        <p class="text-secondary mt-3">
+            Вы не закреплены ни за одной учебной группой.
+            Пожалуйста, свяжитесь с вашим преподавателем или администратором,
+            чтобы вас добавили в список группы.
+        </p>
+        <a href="{% url 'core:index' %}" class="btn btn-primary btn-rounded mt-4 px-4">На главную</a>
+    </div>
+</div>
+{% endblock %}

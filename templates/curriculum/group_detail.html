@@ -31,7 +31,7 @@
             {% csrf_token %}
             <div class="col-md-8">
                 <select name="student_id" class="form-select btn-rounded px-3" required>
-                    <option value="">-- Выберите студента из списка оставшихся --</option>
+                    <option value="">-- Выберите студента из списка --</option>
                     {% for student in available_students %}
                         <option value="{{ student.id }}">{{ student.get_full_name }} (@{{ student.username }})</option>
                     {% endfor %}

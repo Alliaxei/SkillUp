@@ -42,7 +42,7 @@
 
             <div class="col-md-3">
                 <select name="module" class="form-select btn-rounded px-3" onchange="this.form.submit()">
-                    <option value="">Все модули (Фильтр)</option>
+                    <option value="">Все модули</option>
                     {% for module in modules %}
                         <option value="{{ module.id }}" {% if module_value == module.id|slugify %}selected{% endif %}>{{ module.title }}</option>
                     {% endfor %}
@@ -50,7 +50,7 @@
             </div>
             <div class="col-md-3">
                 <select name="task" class="form-select btn-rounded px-3">
-                    <option value="">Все задания (Фильтр)</option>
+                    <option value="">Все задания</option>
                     {% for task in tasks %}
                         <option value="{{ task.id }}" {% if task_value == task.id|slugify %}selected{% endif %}>{{ task.title }}</option>
                     {% endfor %}
@@ -58,7 +58,7 @@
             </div>
             <div class="col-md-3">
                 <select name="status" class="form-select btn-rounded px-3">
-                    <option value="">Все статусы (Фильтр)</option>
+                    <option value="">Все статусы</option>
                     <option value="pending" {% if status_value == 'pending' %}selected{% endif %}>Ожидает</option>
                     <option value="completed" {% if status_value == 'completed' %}selected{% endif %}>Проверено</option>
                     <option value="revision" {% if status_value == 'revision' %}selected{% endif %}>Доработка</option>
@@ -66,7 +66,7 @@
             </div>
             <div class="col-md-3">
                 <select name="sort" class="form-select btn-rounded px-3">
-                    <option value="">Сначала новые (Сортировка)</option>
+                    <option value="">Сначала новые</option>
                     <option value="date_asc" {% if sort_value == 'date_asc' %}selected{% endif %}>Сначала старые</option>
                     <option value="student" {% if sort_value == 'student' %}selected{% endif %}>По алфавиту (Студент)</option>
                 </select>

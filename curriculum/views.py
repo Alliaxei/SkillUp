@@ -3,7 +3,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, QuerySet
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
@@ -20,9 +20,14 @@ class ModuleListView(LoginRequiredMixin, ListView):
     template_name = "curriculum/module_list.html"
     context_object_name = "modules"
 
+    def get(self, request, *args, **kwargs):
+        if request.user.role == "student" and not request.user.group:
+            return render(request, "curriculum/no_group.html")
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
         return Module.objects.annotate(
-            materials_count=Count("materials"), tasks_count=Count("tasks")
+            lectures_count=Count("lectures"), tasks_count=Count("tasks")
         )
 
 
@@ -169,8 +174,19 @@ class GroupCreateView(LoginRequiredMixin, CreateView):
         return response
 
     def form_invalid(self, form):
+        if "title" in form.errors:
+            entered_title = self.request.POST.get("title", "неизвестное")
+            messages.error(
+                self.request, f'Группа с названием "{entered_title}" уже существует.'
+            )
+        else:
+            messages.error(
+                self.request, "Ошибка при создании группы. Проверьте данные."
+            )
+
         logger.error(f"Ошибка валидации формы создания группы: {form.errors}")
-        return super().form_invalid(form)
+
+        return redirect("curriculum:teacher_groups_list")
 
 
 class GroupDetailView(LoginRequiredMixin, DetailView):

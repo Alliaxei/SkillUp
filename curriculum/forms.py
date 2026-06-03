@@ -79,13 +79,13 @@ class MultipleFileInput(forms.FileInput):
 
 
 class LectureForm(forms.ModelForm):
-    images = forms.ImageField(
-        widget=MultipleFileInput(
-            attrs={"multiple": True, "class": "form-control btn-rounded"}
-        ),
-        required=False,
-        label="Добавить изображения в галерею",
-    )
+    # images = forms.ImageField(
+    #     widget=MultipleFileInput(
+    #         attrs={"multiple": True, "class": "form-control btn-rounded"}
+    #     ),
+    #     required=False,
+    #     label="Добавить изображения в галерею",
+    # )
 
     class Meta:
         model = Lecture
