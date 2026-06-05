@@ -56,7 +56,7 @@ class TaskSubmissionView(LoginRequiredMixin, DetailView):
                         request, "Исправленная работа отправлена на проверку."
                     )
                 else:
-                    SubmissionService.create_submission(...)
+                    SubmissionService.create_submission(...)  # TODO refact
                     messages.success(request, "Работа успешно отправлена.")
             except Exception as e:
                 messages.error(request, f"Ошибка: {str(e)}")

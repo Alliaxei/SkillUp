@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "solutions",
     "curriculum",
     "django_ckeditor_5",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
