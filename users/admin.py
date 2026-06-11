@@ -15,7 +15,6 @@ class CustomUserAdmin(UserAdmin):
         "middle_name",
         "role",
         "group",
-        "is_staff",
     )
     search_fields = ("username", "last_name", "email")
 
@@ -35,7 +34,6 @@ class CustomUserAdmin(UserAdmin):
                 )
             },
         ),
-        ("Права доступа", {"fields": ("is_active", "is_staff")}),
     )
 
     add_fieldsets = UserAdmin.add_fieldsets + (

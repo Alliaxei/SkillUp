@@ -65,7 +65,7 @@
                         <h6 class="fw-bold mb-0">{{ task.title }}</h6>
                         <span class="badge bg-light text-dark">{{ task.max_score }} б.</span>
                     </div>
-                    <p class="text-secondary small mb-3">Дедлайн: {{ task.deadline|date:"d.m.Y" }}</p>
+                    <p class="text-secondary small mb-3">Срок сдачи: {{ task.deadline|date:"d.m.Y" }}</p>
                     <a href="{% url 'solutions:task_detail' task.id %}" class="btn btn-primary btn-sm btn-rounded px-4">
                         Перейти к заданию
                     </a>

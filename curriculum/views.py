@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -44,6 +45,7 @@ class TaskListView(LoginRequiredMixin, ListView):
             ).values_list("task_id", flat=True)
 
             context["submitted_task_ids"] = set(submitted_task_ids)
+            context["today"] = date.today().strftime("%Y-%m-%d")
         return context
 
 
@@ -216,10 +218,11 @@ class AddStudentToGroupView(LoginRequiredMixin, View):
             student.group = group
             student.save()
             messages.success(
-                request, f"Студент {student.get_full_name()} успешно добавлен в группу."
+                request,
+                f"Обучающийся {student.get_full_name()} успешно добавлен в группу.",
             )
         else:
-            messages.error(request, "Студент не был выбран.")
+            messages.error(request, "Обучающийся не был выбран.")
 
         return redirect("curriculum:group_detail", pk=group.pk)
 
@@ -237,10 +240,10 @@ class RemoveStudentFromGroupView(LoginRequiredMixin, View):
             student.save()
             messages.success(
                 request,
-                f"Студент {student.get_full_name()} успешно исключен из группы.",
+                f"Обучающийся {student.get_full_name()} успешно исключен из группы.",
             )
         else:
-            messages.error(request, "Студент не был указан.")
+            messages.error(request, "Обучающийся не был указан.")
 
         return redirect("curriculum:group_detail", pk=group.pk)
 

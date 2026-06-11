@@ -29,7 +29,11 @@
                 {% csrf_token %}
 
                 {{ form.media }}
-
+                {% if form.title.errors %}
+                    <div class="alert alert-danger rounded-4">
+                           {{ form.title.errors }}
+                    </div>
+                {% endif %}
                 <div class="row">
                     <div class="col-md-8 mb-4">
                         <label class="form-label text-secondary small fw-bold ms-2">{{ form.title.label }}</label>

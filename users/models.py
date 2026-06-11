@@ -7,7 +7,7 @@ from curriculum.models import StudentGroup
 
 class User(AbstractUser, BaseModel):
     class Role(models.TextChoices):
-        STUDENT = "student", "Студент"
+        STUDENT = "student", "Обучающийся"
         TEACHER = "teacher", "Преподаватель"
         ADMIN = "admin", "Администратор"
 
@@ -38,7 +38,7 @@ class User(AbstractUser, BaseModel):
         if self.is_superuser:
             return "Администратор"
 
-        role_map = {"teacher": "Преподаватель", "student": "Студент"}
+        role_map = {"teacher": "Преподаватель", "student": "Обучающийся"}
         display_role = role_map.get(self.role, "Пользователь")
 
         return f"{self.first_name} {self.last_name} ({display_role})"

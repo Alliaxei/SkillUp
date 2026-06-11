@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="task",
             name="deadline",
-            field=models.DateTimeField(verbose_name="Крайний срок сдачи (дедлайн)"),
+            field=models.DateTimeField(verbose_name="Крайний срок сдачи (Срок сдачи)"),
         ),
         migrations.AlterField(
             model_name="task",

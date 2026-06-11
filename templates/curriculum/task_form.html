@@ -24,9 +24,13 @@
                         <span class="text-accent fs-3">📝</span>
                     </div>
                     <h3 class="fw-bold text-dark">{% if object %}Редактирование задания{% else %}Создание задания{% endif %}</h3>
-                    <p class="text-secondary small">Заполните детали практической работы для студентов</p>
+                    <p class="text-secondary small">Заполните детали практической работы для обучающихся</p>
                 </div>
-
+                 {% if form.title.errors %}
+                    <div class="alert alert-danger rounded-4">
+                           {{ form.title.errors }}
+                    </div>
+                {% endif %}
                 <form method="post" novalidate>
                     {% csrf_token %}
 

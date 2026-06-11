@@ -22,7 +22,7 @@ class Submission(BaseModel):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="submissions",
-        verbose_name="Студент",
+        verbose_name="Обучающийся",
     )
     file = models.FileField(
         upload_to="submissions/%Y/%m/", verbose_name="Файл с решением"
@@ -61,8 +61,8 @@ class Review(BaseModel):
     score = models.PositiveIntegerField(verbose_name="Полученный балл")
 
     class Meta:
-        verbose_name = "Рецензия"
-        verbose_name_plural = "Рецензии"
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
 
     def __str__(self):
         return f"Рецензия на работу {self.submission.id}"

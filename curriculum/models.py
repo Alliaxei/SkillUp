@@ -6,9 +6,7 @@ from core.models import BaseModel
 
 
 class StudentGroup(BaseModel):
-    title = models.CharField(
-        max_length=100, unique=True, verbose_name="Название группы"
-    )
+    title = models.CharField(max_length=7, unique=True, verbose_name="Название группы")
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -16,7 +14,7 @@ class StudentGroup(BaseModel):
         blank=True,
         limit_choices_to={"role": "teacher"},
         related_name="student_groups",
-        verbose_name="Преподаватель/Куратор",
+        verbose_name="Преподаватель",
     )
 
     class Meta:
@@ -58,8 +56,8 @@ class Material(BaseModel):
     text_content = models.TextField(blank=True, verbose_name="Текстовое содержание")
 
     class Meta:
-        verbose_name = "Учебный материал"
-        verbose_name_plural = "Учебные материалы"
+        verbose_name = "Лекция"
+        verbose_name_plural = "Лекции"
 
     def __str__(self):
         return self.title
@@ -80,6 +78,11 @@ class Task(BaseModel):
         verbose_name = "Задание"
         verbose_name_plural = "Задания"
         ordering = ["deadline"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["module", "title"], name="unique_task_title_per_module"
+            )
+        ]
 
     def __str__(self):
         return self.title
@@ -96,6 +99,11 @@ class Lecture(BaseModel):
         verbose_name = "Лекция"
         verbose_name_plural = "Лекции"
         ordering = ["title"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["module", "title"], name="unique_lecture_title_per_module"
+            )
+        ]
 
 
 class LectureImage(models.Model):

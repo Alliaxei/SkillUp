@@ -1,4 +1,5 @@
 from django import forms
+from django.db import IntegrityError
 
 from curriculum.models import Lecture, Module, Task
 
@@ -44,6 +45,23 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = ["module", "title", "description", "deadline", "max_score"]
 
+    def clean_title(self):
+        title = self.cleaned_data.get("title")
+        module = self.cleaned_data.get("module")
+
+        if title and module:
+            qs = Task.objects.filter(module=module, title=title)
+
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+
+            if qs.exists():
+                raise forms.ValidationError(
+                    "Задание с таким названием уже существует в этом модуле"
+                )
+
+        return title
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
@@ -79,17 +97,10 @@ class MultipleFileInput(forms.FileInput):
 
 
 class LectureForm(forms.ModelForm):
-    # images = forms.ImageField(
-    #     widget=MultipleFileInput(
-    #         attrs={"multiple": True, "class": "form-control btn-rounded"}
-    #     ),
-    #     required=False,
-    #     label="Добавить изображения в галерею",
-    # )
-
     class Meta:
         model = Lecture
         fields = ["module", "title", "content"]
+        validate_unique = False
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -101,3 +112,20 @@ class LectureForm(forms.ModelForm):
                     {"class": "form-control btn-rounded px-3 py-2"}
                 )
             field.widget.attrs.update({"placeholder": field.label})
+
+    def clean_title(self):
+        title = self.cleaned_data.get("title")
+        module = self.cleaned_data.get("module")
+
+        if title and module:
+            qs = Lecture.objects.filter(module=module, title=title)
+
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+
+            if qs.exists():
+                raise forms.ValidationError(
+                    "Лекция с таким названием уже существует в этом модуле"
+                )
+
+        return title

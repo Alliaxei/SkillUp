@@ -33,7 +33,7 @@
             <div class="card border-0 shadow-sm rounded-4 p-5 mb-4">
                 <h2 class="fw-bold text-accent mb-3">{{ task.title }}</h2>
                 <div class="d-flex gap-4 mb-4 text-secondary small">
-                    <span>📅 Дедлайн: <b>{{ task.deadline|date:"d.m.Y" }}</b></span>
+                    <span>📅 Срок сдачи: <b>{{ task.deadline|date:"d.m.Y" }}</b></span>
                     <span>⭐ Макс. балл: <b>{{ task.max_score }}</b></span>
                 </div>
                 <hr>
@@ -109,7 +109,7 @@
                     <div class="text-center py-4">
                         <span class="fs-1 d-block mb-3">ℹ️</span>
                         <h5 class="fw-bold">Режим просмотра</h5>
-                        <p class="text-secondary mb-3">Вы просматриваете это задание как <strong>{{ user.get_role_display|default:"Сотрудник" }}</strong>. Отправка решений доступна только студентам.</p>
+                        <p class="text-secondary mb-3">Вы просматриваете это задание как <strong>{{ user.get_role_display|default:"Сотрудник" }}</strong>. Отправка решений доступна только обучающимся.</p>
 
                         {% if user.role == 'teacher' or user.is_staff %}
                             <div class="mt-4 pt-3 border-top">

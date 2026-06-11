@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Material, Module, Task
+from .models import Material, Module, StudentGroup, Task
 
 
 class MaterialInline(admin.TabularInline):
@@ -34,3 +34,11 @@ class TaskAdmin(admin.ModelAdmin):
     list_display = ("title", "module", "deadline", "max_score")
     list_filter = ("module", "deadline")
     date_hierarchy = "deadline"
+
+
+@admin.register(StudentGroup)
+class StudentGroupAdmin(admin.ModelAdmin):
+    list_display = ("title", "teacher", "created_at")
+    list_display_links = ("title",)
+    search_fields = ("title",)
+    list_filter = ("teacher",)

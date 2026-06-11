@@ -36,7 +36,7 @@ class TaskSubmissionView(LoginRequiredMixin, DetailView):
         self.object = self.get_object()
 
         if request.user.role != "student":
-            messages.error(request, "Только студенты могут отправлять работы.")
+            messages.error(request, "Только обучающиеся могут отправлять работы.")
             return redirect("solutions:task_detail", pk=self.object.id)
 
         user_submission = self.object.submissions.filter(student=request.user).first()
@@ -56,7 +56,11 @@ class TaskSubmissionView(LoginRequiredMixin, DetailView):
                         request, "Исправленная работа отправлена на проверку."
                     )
                 else:
-                    SubmissionService.create_submission(...)  # TODO refact
+                    SubmissionService.create_submission(
+                        student=request.user,
+                        task_id=self.object.id,
+                        uploaded_file=request.FILES.get("file"),
+                    )
                     messages.success(request, "Работа успешно отправлена.")
             except Exception as e:
                 messages.error(request, f"Ошибка: {str(e)}")
