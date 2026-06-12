@@ -27,7 +27,7 @@ class StudentGroup(BaseModel):
 
 
 class Module(BaseModel):
-    title = models.CharField(max_length=255, verbose_name="Название модуля")
+    title = models.CharField(max_length=38, verbose_name="Название модуля")
     description = models.TextField(verbose_name="Описание модуля")
 
     class Meta:

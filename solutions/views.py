@@ -1,5 +1,6 @@
 import logging
 
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, IntegerField, Q, Value, When
@@ -11,7 +12,7 @@ from curriculum.models import Task
 from curriculum.views import TeacherRequiredMixin
 from users.models import User
 
-from .forms import SubmissionForm
+from .forms import ReviewForm, SubmissionForm
 from .models import Review, Submission
 from .selectors import get_student_submissions
 from .services import SubmissionService
@@ -214,6 +215,20 @@ class ReviewCreateView(TeacherRequiredMixin, UpdateView):
             messages.success(self.request, "Результат проверки сохранен.")
 
         return redirect("solutions:teacher_submissions")
+
+    def post(self, request, *args, **kwargs):
+        logger.error("POST BEFORE COPY: %s", request.POST)
+
+        request.POST = request.POST.copy()
+
+        action = request.POST.get("action")
+
+        if action == "revision":
+            request.POST["score"] = "0"
+
+        response = super().post(request, *args, **kwargs)
+
+        return response
 
 
 class ReviewDetailView(TeacherRequiredMixin, DetailView):
