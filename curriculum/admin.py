@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Material, Module, StudentGroup, Task
+from .models import Lecture, LectureImage, Material, Module, StudentGroup, Task
 
 
 class MaterialInline(admin.TabularInline):
@@ -22,11 +22,17 @@ class ModuleAdmin(admin.ModelAdmin):
     inlines = [MaterialInline, TaskInline]
 
 
-@admin.register(Material)
-class MaterialAdmin(admin.ModelAdmin):
+class LectureImageInline(admin.TabularInline):
+    model = LectureImage
+    extra = 1
+
+
+@admin.register(Lecture)
+class LectureAdmin(admin.ModelAdmin):
     list_display = ("title", "module", "created_at")
     list_filter = ("module",)
     search_fields = ("title",)
+    inlines = [LectureImageInline]
 
 
 @admin.register(Task)

@@ -28,7 +28,8 @@ class ModuleListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Module.objects.annotate(
-            lectures_count=Count("lectures"), tasks_count=Count("tasks")
+            lectures_count=Count("lectures", distinct=True),
+            tasks_count=Count("tasks", distinct=True),
         )
 
 
