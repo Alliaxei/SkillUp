@@ -49,7 +49,7 @@
                     <p class="text-secondary">{{ module.description|truncatewords:20 }}</p>
                     <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
                         <small class="text-muted">
-                            📖 {{ module.lectures_count }} лекций | 📝 {{ module.tasks_count }} заданий
+                            📖 {{ module.lectures_count }} лекции(й) | 📝 {{ module.tasks_count }} задание(я)
                         </small>
                         <a href="{% url 'curriculum:module_detail' module.id %}"
                            class="btn btn-primary btn-rounded px-4">Открыть</a>
